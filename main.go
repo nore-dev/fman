@@ -29,7 +29,7 @@ func (app App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 
-  app.listView, _ = app.listView.Update()
+  app.listView, _ = app.listView.Update(msg)
 	return app, nil
 }
 

@@ -1,6 +1,7 @@
 package list
 
 import (
+	"strconv"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -8,32 +9,75 @@ import (
 )
 
 type List struct {
-  entries []entry.Entry  
+	entries        []entry.Entry
+	width          int
+	selected_index int
 }
 
 func New() List {
 	return List{
-		entries: entry.GetEntries("."),
+		entries:        entry.GetEntries("."),
+		width:          30,
+		selected_index: 0,
 	}
 }
 
 func (list List) Init() tea.Cmd {
-  return nil
+	return nil
 }
 
+func (list List) Update(msg tea.Msg) (List, tea.Cmd) {
 
-func (list List) Update() (List, tea.Msg) {
-  return list, nil
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch msg.String() {
+		case "w", "up", "k":
+			list.selected_index -= 1
+		
+		case "s", "down", "l":
+			list.selected_index += 1
+		}
+		
+	case tea.WindowSizeMsg:
+		list.width = msg.Width
+	}
+
+	if list.selected_index < 0 {
+		list.selected_index = len(list.entries) - 1
+	} else if list.selected_index >= len(list.entries) {
+		list.selected_index = 0
+	}
+
+	return list, nil
+
+}
+
+// TODO: Refactor
+func addSpace(text string, width int) string {
+	str := strings.Builder{}
+
+	str.Write([]byte(text))
+	str.Write([]byte(strings.Repeat(" ", width-len(text))))
+	return str.String()
 }
 
 func (list List) View() string {
-  str := strings.Builder{}
+	str := strings.Builder{}
 
-  for _, entry := range list.entries {
-    str.Write([]byte(entry.Name))
-    str.WriteByte('\n')
-  }
+	for index, entry := range list.entries {
 
-  return str.String()
+		if index == list.selected_index {
+			str.WriteByte('>')
+		}
+
+		str.Write([]byte(addSpace(entry.Name, list.width*60/100)))
+
+		str.Write([]byte(addSpace(strconv.Itoa(int(entry.Size)), list.width*30/100)))
+
+		str.Write([]byte("File"))
+		str.WriteByte('\n')
+
+	}
+
+	return str.String()
 }
-
