@@ -2,14 +2,18 @@ package main
 
 import (
 	"fmt"
-	tea "github.com/charmbracelet/bubbletea"
 	"os"
 
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
+
+	"github.com/nore-dev/fman/entry"
 	"github.com/nore-dev/fman/list"
 )
 
 type App struct{
-	listView list.List 
+	listView list.List
+	entryView entry.EntryModel
 }
 
 func (app App) Init() tea.Cmd {
@@ -29,12 +33,16 @@ func (app App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 
+
   app.listView, _ = app.listView.Update(msg)
+	app.entryView, _ = app.entryView.Update(entry.EntryMsg{Entry: app.listView.SelectedEntry()})
+
 	return app, nil
 }
 
 func (app App) View() string {
-	return app.listView.View()
+
+	return lipgloss.JoinHorizontal(lipgloss.Top, app.listView.View(), app.entryView.View())
 }
 
 func main() {

@@ -7,24 +7,28 @@ import (
 type EntryType int8
 
 const (
-  TYPE_FOLDER EntryType = iota
-  TYPE_FILE
+	TYPE_FOLDER EntryType = iota
+	TYPE_FILE
 )
 
 type Entry struct {
-  Name string
-  Type EntryType
-  Size int64
+	Name string
+	Type EntryType
+	Size int64
+}
+
+type EntryMsg struct {
+	Entry Entry
 }
 
 func GetEntries(path string) []Entry {
-  entries := []Entry{}
+	entries := []Entry{}
 
 	files, err := ioutil.ReadDir(path)
- 
- 	if err != nil {
+
+	if err != nil {
 		panic(err)
- 	}
+	}
 
 	for _, file := range files {
 		entry := Entry{

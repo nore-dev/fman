@@ -17,7 +17,7 @@ type List struct {
 func New() List {
 	return List{
 		entries:        entry.GetEntries("."),
-		width:          30,
+		width:          40,
 		selected_index: 0,
 	}
 }
@@ -33,13 +33,13 @@ func (list List) Update(msg tea.Msg) (List, tea.Cmd) {
 		switch msg.String() {
 		case "w", "up", "k":
 			list.selected_index -= 1
-		
+
 		case "s", "down", "l":
 			list.selected_index += 1
 		}
-		
+
 	case tea.WindowSizeMsg:
-		list.width = msg.Width
+		list.width = msg.Width * 80 / 100
 	}
 
 	if list.selected_index < 0 {
@@ -80,4 +80,8 @@ func (list List) View() string {
 	}
 
 	return str.String()
+}
+
+func (list List) SelectedEntry() entry.Entry {
+	return list.entries[list.selected_index]
 }
