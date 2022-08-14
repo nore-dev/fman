@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/nore-dev/fman/theme"
 )
 
 type EntryModel struct {
@@ -26,21 +27,29 @@ func (model EntryModel) Update(msg tea.Msg) (EntryModel, tea.Cmd) {
 func (model EntryModel) View() string {
 	str := strings.Builder{}
 
-	str.Write([]byte(model.entry.Name))
-	str.Write([]byte("\nFile\n"))
-
-	str.Write([]byte("Modified at "))
-	str.Write([]byte(model.entry.ModifyTime))
+	str.WriteString(model.entry.Name)
 
 	str.WriteByte('\n')
 
-	str.Write([]byte("Changed at "))
-	str.Write([]byte(model.entry.ChangeTime))
+	if model.entry.IsDir {
+		str.WriteString("Folder\n")
+	} else {
+		str.WriteString(model.entry.Extension)
+		str.WriteString(" File\n")
+	}
+
+	str.WriteString("Modified ")
+	str.WriteString(model.entry.ModifyTime)
 
 	str.WriteByte('\n')
 
-	str.Write([]byte("Accessed at "))
-	str.Write([]byte(model.entry.AccessTime))
+	str.WriteString("Changed ")
+	str.WriteString(model.entry.ChangeTime)
 
-	return str.String()
+	str.WriteByte('\n')
+
+	str.WriteString("Accessed ")
+	str.WriteString(model.entry.AccessTime)
+
+	return theme.ContainerStyle.Render(str.String())
 }

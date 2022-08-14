@@ -3,24 +3,21 @@ package entry
 import (
 	"io/ioutil"
 	"path/filepath"
+
 	"github.com/djherbis/times"
 	"github.com/dustin/go-humanize"
 )
 
-type EntryType int8
-
-const (
-	TYPE_FOLDER EntryType = iota
-	TYPE_FILE
-)
-
 type Entry struct {
 	Name string
-	Type EntryType
 	Size int64
+
 	ModifyTime string
 	AccessTime string
 	ChangeTime string
+
+	Extension string
+	IsDir     bool
 }
 
 type EntryMsg struct {
@@ -39,11 +36,14 @@ func GetEntries(path string) []Entry {
 	for _, file := range files {
 
 		timeStats, _ := times.Stat(filepath.Join(path, file.Name()))
-		
+
 		entry := Entry{
 			Name: file.Name(),
-			Type: TYPE_FOLDER,
 			Size: file.Size(),
+
+			Extension: filepath.Ext(file.Name()),
+			IsDir:     file.IsDir(),
+
 			ModifyTime: humanize.Time(timeStats.ModTime()),
 			ChangeTime: humanize.Time(timeStats.ChangeTime()),
 			AccessTime: humanize.Time(timeStats.AccessTime()),

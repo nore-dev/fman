@@ -11,8 +11,8 @@ import (
 	"github.com/nore-dev/fman/list"
 )
 
-type App struct{
-	listView list.List
+type App struct {
+	listView  list.List
 	entryView entry.EntryModel
 }
 
@@ -33,8 +33,7 @@ func (app App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 
-
-  app.listView, _ = app.listView.Update(msg)
+	app.listView, _ = app.listView.Update(msg)
 	app.entryView, _ = app.entryView.Update(entry.EntryMsg{Entry: app.listView.SelectedEntry()})
 
 	return app, nil
@@ -46,7 +45,7 @@ func (app App) View() string {
 }
 
 func main() {
-	p := tea.NewProgram(&App{listView:list.New()}, tea.WithAltScreen())
+	p := tea.NewProgram(&App{listView: list.New()}, tea.WithAltScreen())
 	if err := p.Start(); err != nil {
 		fmt.Printf("Alas, there's been an error: %v", err)
 		os.Exit(1)
