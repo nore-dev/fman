@@ -4,7 +4,6 @@ import (
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/nore-dev/fman/theme"
 )
 
 type EntryModel struct {
@@ -51,5 +50,5 @@ func (model EntryModel) View() string {
 	str.WriteString("Accessed ")
 	str.WriteString(model.entry.AccessTime)
 
-	return theme.ContainerStyle.Render(str.String())
+	return str.String()
 }

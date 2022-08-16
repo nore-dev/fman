@@ -1,3 +1,5 @@
+github.com/76creates/stickers v0.0.0-20220613133526-beb5a915bb0e h1:xjq+PbfrWmEF1N9oHyZla/uy5oDgHy3TUtKCi6Ud3Ak=
+github.com/76creates/stickers v0.0.0-20220613133526-beb5a915bb0e/go.mod h1:z/6G23++VMIXkwi+nFfb4H6Y4dIo6UsHULeYPp2DAkQ=
 github.com/charmbracelet/bubbletea v0.22.0 h1:E1BTNSE3iIrq0G0X6TjGAmrQ32cGCbFDPcIuImikrUc=
 github.com/charmbracelet/bubbletea v0.22.0/go.mod h1:aoVIwlNlr5wbCB26KhxfrqAn0bMp4YpJcoOelbxApjs=
 github.com/charmbracelet/lipgloss v0.5.0 h1:lulQHuVeodSgDez+3rGiuxlPVXSnhth442DATR2/8t8=

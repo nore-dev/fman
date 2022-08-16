@@ -4,22 +4,29 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/76creates/stickers"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/nore-dev/fman/entry"
 	"github.com/nore-dev/fman/theme"
 )
 
 type List struct {
-	entries        []entry.Entry
-	width          int
+	entries []entry.Entry
+
+	Width           int
+	WidthPercentage int
+
 	selected_index int
+	flexBox        *stickers.FlexBox
 }
 
 func New() List {
 	return List{
-		entries:        entry.GetEntries("."),
-		width:          40,
-		selected_index: 0,
+		entries:         entry.GetEntries("."),
+		Width:           40,
+		selected_index:  0,
+		flexBox:         stickers.NewFlexBox(0, 0),
+		WidthPercentage: 70,
 	}
 }
 
@@ -40,7 +47,7 @@ func (list List) Update(msg tea.Msg) (List, tea.Cmd) {
 		}
 
 	case tea.WindowSizeMsg:
-		list.width = msg.Width * 80 / 100
+		list.Width = msg.Width * list.WidthPercentage / 100
 	}
 
 	if list.selected_index < 0 {
@@ -69,9 +76,9 @@ func (list List) View() string {
 	for index, entry := range list.entries {
 		builder := strings.Builder{}
 
-		builder.WriteString(addSpace(entry.Name, list.width*60/100))
-		builder.WriteString(addSpace(strconv.Itoa(int(entry.Size)), list.width*30/100))
-		builder.WriteString("File")
+		builder.WriteString(addSpace(entry.Name, list.Width*60/100))
+		builder.WriteString(addSpace(strconv.Itoa(int(entry.Size)), list.Width*30/100))
+		builder.WriteString(addSpace("File", list.Width*10/100))
 
 		str := builder.String()
 
@@ -85,7 +92,7 @@ func (list List) View() string {
 		listText.WriteByte('\n')
 	}
 
-	return theme.ListStyle.Render(listText.String())
+	return listText.String()
 }
 
 func (list List) SelectedEntry() entry.Entry {

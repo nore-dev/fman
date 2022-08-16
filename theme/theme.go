@@ -2,7 +2,7 @@ package theme
 
 import "github.com/charmbracelet/lipgloss"
 
-var ContainerStyle = lipgloss.NewStyle().Border(lipgloss.NormalBorder(), true)
+var ContainerStyle = lipgloss.NewStyle().Padding(1).Border(lipgloss.NormalBorder(), false, true)
 
 var ListStyle = ContainerStyle.Copy()
 
