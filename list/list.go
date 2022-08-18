@@ -1,6 +1,7 @@
 package list
 
 import (
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -13,6 +14,8 @@ import (
 type List struct {
 	entries []entry.Entry
 
+	path string
+
 	Width           int
 	WidthPercentage int
 
@@ -21,8 +24,18 @@ type List struct {
 }
 
 func New() List {
+
+	path, _ := filepath.Abs(".")
+
+	entries, err := entry.GetEntries(path)
+
+	if err != nil {
+		panic(err)
+	}
+
 	return List{
-		entries:         entry.GetEntries("."),
+		path:            path,
+		entries:         entries,
 		Width:           40,
 		selected_index:  0,
 		flexBox:         stickers.NewFlexBox(0, 0),
@@ -39,11 +52,35 @@ func (list List) Update(msg tea.Msg) (List, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "w", "up", "k":
+		case "w", "up", "j":
 			list.selected_index -= 1
 
-		case "s", "down", "l":
+		case "s", "down", "k":
 			list.selected_index += 1
+
+		case "a", "left", "h": // Get entries from parent directory
+			list.path = filepath.Dir(list.path)
+			entries, err := entry.GetEntries(list.path)
+
+			if err != nil {
+				panic(err)
+			}
+
+			list.entries = entries
+		case "d", "right", "l": // If the selected entry is a directory. Get entries under that directory
+			if !list.SelectedEntry().IsDir {
+				break
+			}
+
+			list.path = filepath.Join(list.path, list.SelectedEntry().Name)
+
+			entries, err := entry.GetEntries(list.path)
+
+			if err != nil {
+				panic(err)
+			}
+
+			list.entries = entries
 		}
 
 	case tea.WindowSizeMsg:
@@ -71,6 +108,10 @@ func addSpace(text string, width int) string {
 }
 
 func (list List) View() string {
+	if len(list.entries) == 0 {
+		return "Empty"
+	}
+
 	listText := strings.Builder{}
 
 	for index, entry := range list.entries {
@@ -96,5 +137,10 @@ func (list List) View() string {
 }
 
 func (list List) SelectedEntry() entry.Entry {
+
+	if len(list.entries) == 0 {
+		return entry.Entry{}
+	}
+
 	return list.entries[list.selected_index]
 }

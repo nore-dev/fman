@@ -1,7 +1,7 @@
 package entry
 
 import (
-	"io/ioutil"
+	"os"
 	"path/filepath"
 
 	"github.com/djherbis/times"
@@ -24,22 +24,36 @@ type EntryMsg struct {
 	Entry Entry
 }
 
-func GetEntries(path string) []Entry {
+func GetEntries(path string) ([]Entry, error) {
 	entries := []Entry{}
 
-	files, err := ioutil.ReadDir(path)
+	files, err := os.ReadDir(path)
 
 	if err != nil {
-		panic(err)
+		return []Entry{}, err
 	}
 
 	for _, file := range files {
+		info, err := file.Info()
 
-		timeStats, _ := times.Stat(filepath.Join(path, file.Name()))
+		// If the entry is a symlink, ignore it
+		if info.Mode()&os.ModeSymlink != 0 {
+			continue
+		}
+
+		if err != nil {
+			return []Entry{}, nil
+		}
+
+		timeStats, err := times.Stat(filepath.Join(path, file.Name()))
+
+		if err != nil {
+			return []Entry{}, nil
+		}
 
 		entry := Entry{
 			Name: file.Name(),
-			Size: file.Size(),
+			Size: info.Size(),
 
 			Extension: filepath.Ext(file.Name()),
 			IsDir:     file.IsDir(),
@@ -52,5 +66,5 @@ func GetEntries(path string) []Entry {
 		entries = append(entries, entry)
 	}
 
-	return entries
+	return entries, nil
 }
