@@ -10,7 +10,7 @@ import (
 
 type Entry struct {
 	Name string
-	Size int64
+	Size string
 
 	ModifyTime string
 	AccessTime string
@@ -53,7 +53,7 @@ func GetEntries(path string) ([]Entry, error) {
 
 		entry := Entry{
 			Name: file.Name(),
-			Size: info.Size(),
+			Size: humanize.SI(float64(info.Size()), "B"),
 
 			Extension: filepath.Ext(file.Name()),
 			IsDir:     file.IsDir(),
@@ -67,4 +67,12 @@ func GetEntries(path string) ([]Entry, error) {
 	}
 
 	return entries, nil
+}
+
+func (entry Entry) Type() string {
+	if entry.IsDir {
+		return "Folder"
+	}
+
+	return entry.Extension + " File"
 }

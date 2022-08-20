@@ -40,6 +40,9 @@ func (app *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		app.flexBox.SetHeight(msg.Height)
 		app.flexBox.SetWidth(msg.Width)
 
+		app.flexBox.ForceRecalculate()
+		app.listView.Width = app.flexBox.Row(0).Cell(0).GetWidth()
+
 	}
 
 	app.listView, _ = app.listView.Update(msg)
@@ -71,8 +74,8 @@ func main() {
 	rows := []*stickers.FlexBoxRow{
 		app.flexBox.NewRow().AddCells(
 			[]*stickers.FlexBoxCell{
-				stickers.NewFlexBoxCell(app.listView.WidthPercentage, 1).SetStyle(lipgloss.NewStyle().Padding(1)),
-				stickers.NewFlexBoxCell(100-app.listView.WidthPercentage, 1).SetStyle(theme.ContainerStyle),
+				stickers.NewFlexBoxCell(7, 1).SetStyle(lipgloss.NewStyle().Padding(1)),
+				stickers.NewFlexBoxCell(3, 1).SetStyle(theme.ContainerStyle),
 			},
 		),
 	}

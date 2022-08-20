@@ -2,11 +2,11 @@ package list
 
 import (
 	"path/filepath"
-	"strconv"
 	"strings"
 
 	"github.com/76creates/stickers"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/nore-dev/fman/entry"
 	"github.com/nore-dev/fman/theme"
 )
@@ -16,8 +16,7 @@ type List struct {
 
 	path string
 
-	Width           int
-	WidthPercentage int
+	Width int
 
 	selected_index int
 	flexBox        *stickers.FlexBox
@@ -33,14 +32,25 @@ func New() List {
 		panic(err)
 	}
 
-	return List{
-		path:            path,
-		entries:         entries,
-		Width:           40,
-		selected_index:  0,
-		flexBox:         stickers.NewFlexBox(0, 0),
-		WidthPercentage: 70,
+	list := List{
+		path:    path,
+		entries: entries,
+		flexBox: stickers.NewFlexBox(0, 0),
 	}
+
+	rows := []*stickers.FlexBoxRow{
+		list.flexBox.NewRow().AddCells(
+			[]*stickers.FlexBoxCell{
+				stickers.NewFlexBoxCell(6, 1),
+				stickers.NewFlexBoxCell(2, 1),
+				stickers.NewFlexBoxCell(2, 1),
+			},
+		),
+	}
+
+	list.flexBox.AddRows(rows)
+
+	return list
 }
 
 func (list List) Init() tea.Cmd {
@@ -84,7 +94,8 @@ func (list List) Update(msg tea.Msg) (List, tea.Cmd) {
 		}
 
 	case tea.WindowSizeMsg:
-		list.Width = msg.Width * list.WidthPercentage / 100
+		list.flexBox.SetWidth(list.Width)
+		// list.Width = msg.Width * list.WidthPercentage / 100
 	}
 
 	if list.selected_index < 0 {
@@ -97,43 +108,59 @@ func (list List) Update(msg tea.Msg) (List, tea.Cmd) {
 
 }
 
-// TODO: Refactor
-func addSpace(text string, width int) string {
-	str := strings.Builder{}
-
-	str.WriteString(text)
-	str.WriteString(strings.Repeat(" ", width-len(text)))
-
-	return str.String()
-}
-
 func (list List) View() string {
+	list.flexBox.ForceRecalculate()
+
 	if len(list.entries) == 0 {
 		return "Empty"
 	}
 
-	listText := strings.Builder{}
+	cellsLength := list.flexBox.Row(0).CellsLen()
+	contents := make([]strings.Builder, cellsLength)
 
 	for index, entry := range list.entries {
-		builder := strings.Builder{}
+		content := make([]strings.Builder, cellsLength)
 
-		builder.WriteString(addSpace(entry.Name, list.Width*60/100))
-		builder.WriteString(addSpace(strconv.Itoa(int(entry.Size)), list.Width*30/100))
-		builder.WriteString(addSpace("File", list.Width*10/100))
+		content[0].WriteString(entry.Name)
 
-		str := builder.String()
+		sizeStr := entry.Size
 
-		if index == list.selected_index {
-			str = theme.SelectedItemStyle.Render(str)
-		} else if index%2 == 0 {
-			str = theme.EvenItemStyle.Render(str)
+		if entry.IsDir {
+			sizeStr = "-"
 		}
 
-		listText.WriteString(str)
-		listText.WriteByte('\n')
+		content[1].WriteString(sizeStr)
+
+		content[2].WriteString(entry.ModifyTime)
+
+		for i := 0; i < cellsLength; i++ {
+
+			style := lipgloss.NewStyle()
+			offset := 0
+
+			if index == list.selected_index {
+				style = theme.SelectedItemStyle
+			} else if index%2 == 0 {
+				style = theme.EvenItemStyle
+			}
+
+			// IDK
+			if i == 2 {
+				offset = 2
+			}
+
+			style.Width(list.flexBox.Row(0).Cell(i).GetWidth() - offset)
+
+			contents[i].WriteString(style.Render(content[i].String()))
+			contents[i].WriteByte('\n')
+		}
 	}
 
-	return listText.String()
+	for i := 0; i < cellsLength; i++ {
+		list.flexBox.Row(0).Cell(i).SetContent(contents[i].String())
+	}
+
+	return list.flexBox.Render()
 }
 
 func (list List) SelectedEntry() entry.Entry {
