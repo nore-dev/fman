@@ -1,8 +1,10 @@
 package entry
 
 import (
+	"bufio"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/djherbis/times"
 	"github.com/dustin/go-humanize"
@@ -18,10 +20,39 @@ type Entry struct {
 
 	Extension string
 	IsDir     bool
+
+	Preview string
 }
 
 type EntryMsg struct {
 	Entry Entry
+}
+
+func GetFilePreview(path string) (string, error) {
+	strBuilder := strings.Builder{}
+
+	f, err := os.Open(path)
+
+	if err != nil {
+		return "", err
+	}
+
+	defer f.Close()
+
+	scanner := bufio.NewScanner(f)
+
+	for i := 0; i < 10; i++ {
+		scanner.Scan()
+
+		strBuilder.WriteString(scanner.Text())
+		strBuilder.WriteByte('\n')
+	}
+
+	if err := scanner.Err(); err != nil {
+		return "", err
+	}
+
+	return strBuilder.String(), nil
 }
 
 func GetEntries(path string) ([]Entry, error) {
@@ -35,6 +66,8 @@ func GetEntries(path string) ([]Entry, error) {
 
 	for _, file := range files {
 		info, err := file.Info()
+		preview := ""
+		fullPath := filepath.Join(path, file.Name())
 
 		// If the entry is a symlink, ignore it
 		if info.Mode()&os.ModeSymlink != 0 {
@@ -42,13 +75,22 @@ func GetEntries(path string) ([]Entry, error) {
 		}
 
 		if err != nil {
-			return []Entry{}, nil
+			return []Entry{}, err
 		}
 
-		timeStats, err := times.Stat(filepath.Join(path, file.Name()))
+		timeStats, err := times.Stat(fullPath)
 
 		if err != nil {
-			return []Entry{}, nil
+			return []Entry{}, err
+		}
+
+		// Get File Preview
+		if !file.IsDir() {
+			preview, err = GetFilePreview(fullPath)
+
+			if err != nil {
+				return []Entry{}, err
+			}
 		}
 
 		entry := Entry{
@@ -61,6 +103,7 @@ func GetEntries(path string) ([]Entry, error) {
 			ModifyTime: humanize.Time(timeStats.ModTime()),
 			ChangeTime: humanize.Time(timeStats.ChangeTime()),
 			AccessTime: humanize.Time(timeStats.AccessTime()),
+			Preview:    preview,
 		}
 
 		entries = append(entries, entry)

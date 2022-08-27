@@ -67,8 +67,9 @@ func (app *App) View() string {
 
 func main() {
 	app := App{
-		listView: list.New(),
-		flexBox:  stickers.NewFlexBox(0, 0),
+		listView:  list.New(),
+		entryView: entry.NewModel(),
+		flexBox:   stickers.NewFlexBox(0, 0),
 	}
 
 	rows := []*stickers.FlexBoxRow{

@@ -4,10 +4,15 @@ import (
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type EntryModel struct {
 	entry Entry
+}
+
+func NewModel() EntryModel {
+	return EntryModel{}
 }
 
 func (model EntryModel) Init() tea.Cmd {
@@ -23,7 +28,7 @@ func (model EntryModel) Update(msg tea.Msg) (EntryModel, tea.Cmd) {
 	return model, nil
 }
 
-func (model EntryModel) View() string {
+func (model EntryModel) getFileInfo() string {
 	str := strings.Builder{}
 
 	str.WriteString(model.entry.Name)
@@ -51,4 +56,12 @@ func (model EntryModel) View() string {
 	str.WriteString(model.entry.AccessTime)
 
 	return str.String()
+}
+
+func (model EntryModel) View() string {
+
+	return lipgloss.JoinVertical(lipgloss.Left,
+		lipgloss.NewStyle().Bold(true).Render(model.entry.Preview),
+		model.getFileInfo())
+
 }
