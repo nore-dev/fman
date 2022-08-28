@@ -4,6 +4,8 @@ import "github.com/charmbracelet/lipgloss"
 
 var ContainerStyle = lipgloss.NewStyle().Padding(1).Border(lipgloss.NormalBorder(), false, true)
 
+var BoldStyle = lipgloss.NewStyle().Bold(true)
+
 var ListStyle = ContainerStyle.Copy()
 
 var EvenItemStyle = lipgloss.NewStyle().

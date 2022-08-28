@@ -62,10 +62,10 @@ func (list List) Update(msg tea.Msg) (List, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "w", "up", "j":
+		case "w", "up", "j": // Select entry above
 			list.selected_index -= 1
 
-		case "s", "down", "k":
+		case "s", "down", "k": // Select entry below
 			list.selected_index += 1
 
 		case "a", "left", "h": // Get entries from parent directory
@@ -95,7 +95,6 @@ func (list List) Update(msg tea.Msg) (List, tea.Cmd) {
 
 	case tea.WindowSizeMsg:
 		list.flexBox.SetWidth(list.Width)
-		// list.Width = msg.Width * list.WidthPercentage / 100
 	}
 
 	if list.selected_index < 0 {
@@ -117,6 +116,16 @@ func (list List) View() string {
 
 	cellsLength := list.flexBox.Row(0).CellsLen()
 	contents := make([]strings.Builder, cellsLength)
+
+	// Write List headers
+	contents[0].WriteString(theme.BoldStyle.Render("Name"))
+	contents[0].WriteByte('\n')
+
+	contents[1].WriteString(theme.BoldStyle.Render("Size"))
+	contents[1].WriteByte('\n')
+
+	contents[2].WriteString(theme.BoldStyle.Render("Modify Time"))
+	contents[2].WriteByte('\n')
 
 	for index, entry := range list.entries {
 		content := make([]strings.Builder, cellsLength)
