@@ -1,7 +1,9 @@
 package list
 
 import (
+	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/76creates/stickers"
@@ -30,6 +32,17 @@ func max(a, b int) int {
 	}
 
 	return b
+}
+
+func detectOpenCommand() string {
+	switch runtime.GOOS {
+	case "linux":
+		return "xdg-open"
+	case "darwin":
+		return "open"
+	}
+
+	return "start"
 }
 
 func New() List {
@@ -70,6 +83,8 @@ func (list List) Init() tea.Cmd {
 
 func (list List) Update(msg tea.Msg) (List, tea.Cmd) {
 
+	fullPath := filepath.Join(list.path, list.SelectedEntry().Name)
+
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -93,7 +108,7 @@ func (list List) Update(msg tea.Msg) (List, tea.Cmd) {
 				break
 			}
 
-			list.path = filepath.Join(list.path, list.SelectedEntry().Name)
+			list.path = fullPath
 
 			entries, err := entry.GetEntries(list.path)
 
@@ -102,6 +117,9 @@ func (list List) Update(msg tea.Msg) (List, tea.Cmd) {
 			}
 
 			list.entries = entries
+		case "enter": // Open file with default application
+			cmd := exec.Command(detectOpenCommand(), fullPath)
+			cmd.Run()
 		}
 
 	case tea.WindowSizeMsg:
