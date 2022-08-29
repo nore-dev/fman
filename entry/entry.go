@@ -2,10 +2,16 @@ package entry
 
 import (
 	"bufio"
+	"bytes"
+	"mime"
 	"os"
 	"path/filepath"
 	"strings"
+	"unicode/utf8"
 
+	"github.com/alecthomas/chroma/formatters"
+	"github.com/alecthomas/chroma/lexers"
+	"github.com/alecthomas/chroma/styles"
 	"github.com/djherbis/times"
 	"github.com/dustin/go-humanize"
 )
@@ -48,11 +54,40 @@ func GetFilePreview(path string) (string, error) {
 		strBuilder.WriteByte('\n')
 	}
 
+	if !utf8.ValidString(strBuilder.String()) {
+		return "", nil
+	}
+
 	if err := scanner.Err(); err != nil {
 		return "", err
 	}
 
 	return strBuilder.String(), nil
+}
+
+func HighlightSyntax(name string, preview string) (string, error) {
+	var buffer bytes.Buffer
+
+	lexer := lexers.Match(name)
+
+	if lexer == nil {
+		lexer = lexers.Fallback
+	}
+
+	style := styles.Get("monokai")
+	formatter := formatters.Get("terminal")
+
+	iterator, err := lexer.Tokenise(nil, preview)
+
+	if err != nil {
+		return "", err
+	}
+
+	if err = formatter.Format(&buffer, style, iterator); err != nil {
+		return "", err
+	}
+
+	return buffer.String(), nil
 }
 
 func GetEntries(path string) ([]Entry, error) {
@@ -84,9 +119,14 @@ func GetEntries(path string) ([]Entry, error) {
 			return []Entry{}, err
 		}
 
-		// Get File Preview
 		if !file.IsDir() {
 			preview, err = GetFilePreview(fullPath)
+
+			if err != nil {
+				return []Entry{}, err
+			}
+
+			preview, err = HighlightSyntax(file.Name(), preview)
 
 			if err != nil {
 				return []Entry{}, err
@@ -97,7 +137,7 @@ func GetEntries(path string) ([]Entry, error) {
 			Name: file.Name(),
 			Size: humanize.SI(float64(info.Size()), "B"),
 
-			Extension: filepath.Ext(file.Name()),
+			Extension: mime.TypeByExtension(filepath.Ext(file.Name())),
 			IsDir:     file.IsDir(),
 
 			ModifyTime: humanize.Time(timeStats.ModTime()),

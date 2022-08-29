@@ -20,6 +20,16 @@ type List struct {
 
 	selected_index int
 	flexBox        *stickers.FlexBox
+
+	maxEntryToShow int
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+
+	return b
 }
 
 func New() List {
@@ -33,9 +43,10 @@ func New() List {
 	}
 
 	list := List{
-		path:    path,
-		entries: entries,
-		flexBox: stickers.NewFlexBox(0, 0),
+		path:           path,
+		entries:        entries,
+		flexBox:        stickers.NewFlexBox(0, 0),
+		maxEntryToShow: 23,
 	}
 
 	rows := []*stickers.FlexBoxRow{
@@ -127,7 +138,12 @@ func (list List) View() string {
 	contents[2].WriteString(theme.BoldStyle.Render("Modify Time"))
 	contents[2].WriteByte('\n')
 
-	for index, entry := range list.entries {
+	startIndex := max(0, list.selected_index-list.maxEntryToShow)
+	// stopIndex := max(list.selected_index, list.maxEntryToShow)
+
+	for index := startIndex; index < len(list.entries); index++ {
+		entry := list.entries[index]
+
 		content := make([]strings.Builder, cellsLength)
 
 		content[0].WriteString(entry.Name)

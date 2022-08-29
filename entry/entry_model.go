@@ -61,7 +61,7 @@ func (model EntryModel) getFileInfo() string {
 func (model EntryModel) View() string {
 
 	return lipgloss.JoinVertical(lipgloss.Left,
-		lipgloss.NewStyle().Bold(true).Render(model.entry.Preview),
+		model.entry.Preview,
 		model.getFileInfo())
 
 }
