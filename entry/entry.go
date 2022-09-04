@@ -6,6 +6,7 @@ import (
 	"mime"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"unicode/utf8"
 
@@ -133,9 +134,26 @@ func GetEntries(path string) ([]Entry, error) {
 			}
 		}
 
+		// .. Get Entry size
+		size := humanize.IBytes(uint64(info.Size()))
+
+		if file.IsDir() {
+			_entries, err := os.ReadDir(fullPath)
+
+			if err != nil {
+				return []Entry{}, nil
+			}
+
+			size = strconv.Itoa(len(_entries)) + " entries"
+
+			if len(_entries) == 0 {
+				size = "Empty Folder"
+			}
+		}
+
 		entry := Entry{
 			Name: file.Name(),
-			Size: humanize.SI(float64(info.Size()), "B"),
+			Size: size,
 
 			Extension: mime.TypeByExtension(filepath.Ext(file.Name())),
 			IsDir:     file.IsDir(),

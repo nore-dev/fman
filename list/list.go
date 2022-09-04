@@ -65,9 +65,9 @@ func New() List {
 	rows := []*stickers.FlexBoxRow{
 		list.flexBox.NewRow().AddCells(
 			[]*stickers.FlexBoxCell{
-				stickers.NewFlexBoxCell(6, 1),
+				stickers.NewFlexBoxCell(5, 1),
 				stickers.NewFlexBoxCell(2, 1),
-				stickers.NewFlexBoxCell(2, 1),
+				stickers.NewFlexBoxCell(3, 1),
 			},
 		),
 	}
@@ -157,7 +157,6 @@ func (list List) View() string {
 	contents[2].WriteByte('\n')
 
 	startIndex := max(0, list.selected_index-list.maxEntryToShow)
-	// stopIndex := max(list.selected_index, list.maxEntryToShow)
 
 	for index := startIndex; index < len(list.entries); index++ {
 		entry := list.entries[index]
@@ -165,15 +164,7 @@ func (list List) View() string {
 		content := make([]strings.Builder, cellsLength)
 
 		content[0].WriteString(entry.Name)
-
-		sizeStr := entry.Size
-
-		if entry.IsDir {
-			sizeStr = "-"
-		}
-
-		content[1].WriteString(sizeStr)
-
+		content[1].WriteString(entry.Size)
 		content[2].WriteString(entry.ModifyTime)
 
 		for i := 0; i < cellsLength; i++ {
