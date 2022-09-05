@@ -1,4 +1,4 @@
-package list
+package model
 
 import (
 	"os/exec"
@@ -13,7 +13,7 @@ import (
 	"github.com/nore-dev/fman/theme"
 )
 
-type List struct {
+type ListModel struct {
 	entries []entry.Entry
 
 	path string
@@ -45,7 +45,7 @@ func detectOpenCommand() string {
 	return "start"
 }
 
-func New() List {
+func NewListModel() ListModel {
 
 	path, _ := filepath.Abs(".")
 
@@ -55,7 +55,7 @@ func New() List {
 		panic(err)
 	}
 
-	list := List{
+	list := ListModel{
 		path:           path,
 		entries:        entries,
 		flexBox:        stickers.NewFlexBox(0, 0),
@@ -77,11 +77,11 @@ func New() List {
 	return list
 }
 
-func (list List) Init() tea.Cmd {
+func (list ListModel) Init() tea.Cmd {
 	return nil
 }
 
-func (list List) Update(msg tea.Msg) (List, tea.Cmd) {
+func (list ListModel) Update(msg tea.Msg) (ListModel, tea.Cmd) {
 
 	fullPath := filepath.Join(list.path, list.SelectedEntry().Name)
 
@@ -136,7 +136,7 @@ func (list List) Update(msg tea.Msg) (List, tea.Cmd) {
 
 }
 
-func (list List) View() string {
+func (list ListModel) View() string {
 	list.flexBox.ForceRecalculate()
 
 	if len(list.entries) == 0 {
@@ -197,7 +197,7 @@ func (list List) View() string {
 	return list.flexBox.Render()
 }
 
-func (list List) SelectedEntry() entry.Entry {
+func (list ListModel) SelectedEntry() entry.Entry {
 
 	if len(list.entries) == 0 {
 		return entry.Entry{}

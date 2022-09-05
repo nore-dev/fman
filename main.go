@@ -9,13 +9,13 @@ import (
 	"github.com/charmbracelet/lipgloss"
 
 	"github.com/nore-dev/fman/entry"
-	"github.com/nore-dev/fman/list"
+	"github.com/nore-dev/fman/model"
 	"github.com/nore-dev/fman/theme"
 )
 
 type App struct {
-	listView  list.List
-	entryView entry.EntryModel
+	listView  model.ListModel
+	entryView model.EntryModel
 
 	flexBox *stickers.FlexBox
 }
@@ -67,8 +67,8 @@ func (app *App) View() string {
 
 func main() {
 	app := App{
-		listView:  list.New(),
-		entryView: entry.NewModel(),
+		listView:  model.NewListModel(),
+		entryView: model.NewEntryModel(),
 		flexBox:   stickers.NewFlexBox(0, 0),
 	}
 

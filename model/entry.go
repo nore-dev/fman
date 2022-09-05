@@ -1,17 +1,18 @@
-package entry
+package model
 
 import (
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/nore-dev/fman/entry"
 )
 
 type EntryModel struct {
-	entry Entry
+	entry entry.Entry
 }
 
-func NewModel() EntryModel {
+func NewEntryModel() EntryModel {
 	return EntryModel{}
 }
 
@@ -22,7 +23,7 @@ func (model EntryModel) Init() tea.Cmd {
 func (model EntryModel) Update(msg tea.Msg) (EntryModel, tea.Cmd) {
 
 	switch msg := msg.(type) {
-	case EntryMsg:
+	case entry.EntryMsg:
 		model.entry = msg.Entry
 	}
 	return model, nil
