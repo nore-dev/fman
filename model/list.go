@@ -24,6 +24,16 @@ type ListModel struct {
 	flexBox        *stickers.FlexBox
 
 	maxEntryToShow int
+
+	initialized bool
+}
+
+type UpdateEntriesMsg struct {
+	parent bool
+}
+
+type PathMsg struct {
+	path string
 }
 
 func max(a, b int) int {
@@ -60,6 +70,7 @@ func NewListModel() ListModel {
 		entries:        entries,
 		flexBox:        stickers.NewFlexBox(0, 0),
 		maxEntryToShow: 23,
+		initialized:    false,
 	}
 
 	rows := []*stickers.FlexBoxRow{
@@ -81,11 +92,59 @@ func (list ListModel) Init() tea.Cmd {
 	return nil
 }
 
+func (list *ListModel) getEntriesAbove() {
+	list.path = filepath.Dir(list.path)
+	entries, err := entry.GetEntries(list.path)
+
+	if err != nil {
+		panic(err)
+	}
+
+	list.entries = entries
+}
+
+func (list *ListModel) getEntriesBelow() {
+	if !list.SelectedEntry().IsDir {
+		return
+	}
+
+	list.path = filepath.Join(list.path, list.SelectedEntry().Name)
+
+	entries, err := entry.GetEntries(list.path)
+
+	if err != nil {
+		panic(err)
+	}
+
+	list.entries = entries
+}
+
+func (list *ListModel) restrictIndex() {
+	if list.selected_index < 0 {
+		list.selected_index = len(list.entries) - 1
+	} else if list.selected_index >= len(list.entries) {
+		list.selected_index = 0
+	}
+}
+
 func (list ListModel) Update(msg tea.Msg) (ListModel, tea.Cmd) {
 
 	fullPath := filepath.Join(list.path, list.SelectedEntry().Name)
 
 	switch msg := msg.(type) {
+	case UpdateEntriesMsg:
+		if msg.parent {
+			list.getEntriesAbove()
+		} else {
+			list.getEntriesBelow()
+		}
+
+		list.restrictIndex()
+
+		return list, func() tea.Msg {
+			return PathMsg{list.path}
+		}
+
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "w", "up", "j": // Select entry above
@@ -95,28 +154,13 @@ func (list ListModel) Update(msg tea.Msg) (ListModel, tea.Cmd) {
 			list.selected_index += 1
 
 		case "a", "left", "h": // Get entries from parent directory
-			list.path = filepath.Dir(list.path)
-			entries, err := entry.GetEntries(list.path)
-
-			if err != nil {
-				panic(err)
+			return list, func() tea.Msg {
+				return UpdateEntriesMsg{parent: true}
 			}
-
-			list.entries = entries
 		case "d", "right", "l": // If the selected entry is a directory. Get entries under that directory
-			if !list.SelectedEntry().IsDir {
-				break
+			return list, func() tea.Msg {
+				return UpdateEntriesMsg{}
 			}
-
-			list.path = fullPath
-
-			entries, err := entry.GetEntries(list.path)
-
-			if err != nil {
-				panic(err)
-			}
-
-			list.entries = entries
 		case "enter": // Open file with default application
 			cmd := exec.Command(detectOpenCommand(), fullPath)
 			cmd.Run()
@@ -126,10 +170,14 @@ func (list ListModel) Update(msg tea.Msg) (ListModel, tea.Cmd) {
 		list.flexBox.SetWidth(list.Width)
 	}
 
-	if list.selected_index < 0 {
-		list.selected_index = len(list.entries) - 1
-	} else if list.selected_index >= len(list.entries) {
-		list.selected_index = 0
+	list.restrictIndex()
+
+	if !list.initialized {
+		list.initialized = true
+
+		return list, func() tea.Msg {
+			return PathMsg{list.path}
+		}
 	}
 
 	return list, nil

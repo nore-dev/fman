@@ -7,6 +7,7 @@ import (
 	"github.com/76creates/stickers"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	zone "github.com/lrstanley/bubblezone"
 
 	"github.com/nore-dev/fman/entry"
 	"github.com/nore-dev/fman/model"
@@ -14,8 +15,9 @@ import (
 )
 
 type App struct {
-	listView  model.ListModel
-	entryView model.EntryModel
+	listModel    model.ListModel
+	entryModel   model.EntryModel
+	toolbarModel model.ToolbarModel
 
 	flexBox *stickers.FlexBox
 }
@@ -37,18 +39,23 @@ func (app *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 	case tea.WindowSizeMsg:
-		app.flexBox.SetHeight(msg.Height)
+		toolbarHeight := 3
+
+		app.flexBox.SetHeight(msg.Height - toolbarHeight)
 		app.flexBox.SetWidth(msg.Width)
 
 		app.flexBox.ForceRecalculate()
-		app.listView.Width = app.flexBox.Row(0).Cell(0).GetWidth()
+		app.listModel.Width = app.flexBox.Row(0).Cell(0).GetWidth()
 
 	}
 
-	app.listView, _ = app.listView.Update(msg)
-	app.entryView, _ = app.entryView.Update(entry.EntryMsg{Entry: app.listView.SelectedEntry()})
+	var listCmd, toolbarCmd tea.Cmd
 
-	return app, nil
+	app.listModel, listCmd = app.listModel.Update(msg)
+	app.toolbarModel, toolbarCmd = app.toolbarModel.Update(msg)
+	app.entryModel, _ = app.entryModel.Update(entry.EntryMsg{Entry: app.listModel.SelectedEntry()})
+
+	return app, tea.Batch(listCmd, toolbarCmd)
 }
 
 func (app *App) View() string {
@@ -57,33 +64,42 @@ func (app *App) View() string {
 	row := app.flexBox.Row(0)
 
 	// Set content of list view
-	row.Cell(0).SetContent(app.listView.View())
+	row.Cell(0).SetContent(app.listModel.View())
 
 	// Set content of entry view
-	row.Cell(1).SetContent(app.entryView.View())
+	row.Cell(1).SetContent(app.entryModel.View())
 
-	return app.flexBox.Render()
+	return zone.Scan(lipgloss.JoinVertical(
+		lipgloss.Top,
+		app.toolbarModel.View(),
+		app.flexBox.Render()))
 }
 
 func main() {
+	// Initialize Bubblezone
+	zone.NewGlobal()
+	defer zone.Close()
+
 	app := App{
-		listView:  model.NewListModel(),
-		entryView: model.NewEntryModel(),
-		flexBox:   stickers.NewFlexBox(0, 0),
+		listModel:    model.NewListModel(),
+		entryModel:   model.NewEntryModel(),
+		toolbarModel: model.NewToolbarModel(),
+		flexBox:      stickers.NewFlexBox(0, 0),
 	}
 
 	rows := []*stickers.FlexBoxRow{
 		app.flexBox.NewRow().AddCells(
 			[]*stickers.FlexBoxCell{
-				stickers.NewFlexBoxCell(7, 1).SetStyle(lipgloss.NewStyle().Padding(1)),
-				stickers.NewFlexBoxCell(3, 1).SetStyle(theme.ContainerStyle),
+				stickers.NewFlexBoxCell(7, 1).SetStyle(lipgloss.NewStyle().Padding(1)), // List
+				stickers.NewFlexBoxCell(3, 1).SetStyle(theme.ContainerStyle),           // Entry Information
 			},
 		),
 	}
 
 	app.flexBox.AddRows(rows)
 
-	p := tea.NewProgram(&app, tea.WithAltScreen())
+	p := tea.NewProgram(&app, tea.WithAltScreen(), tea.WithMouseAllMotion())
+
 	if err := p.Start(); err != nil {
 		fmt.Printf("Alas, there's been an error: %v", err)
 		os.Exit(1)
