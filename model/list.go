@@ -24,6 +24,7 @@ type ListModel struct {
 	flexBox        *stickers.FlexBox
 
 	maxEntryToShow int
+	truncateLimit  int
 
 	initialized bool
 }
@@ -42,6 +43,18 @@ func max(a, b int) int {
 	}
 
 	return b
+}
+
+func truncateText(str string, max int) string {
+	// "hello world" -> "hello wo..."
+
+	_str := str
+
+	if len(str) > max {
+		_str = str[:max-3] + "..."
+	}
+
+	return _str
 }
 
 func detectOpenCommand() string {
@@ -70,6 +83,7 @@ func NewListModel() ListModel {
 		entries:        entries,
 		flexBox:        stickers.NewFlexBox(0, 0),
 		maxEntryToShow: 23,
+		truncateLimit:  40,
 		initialized:    false,
 	}
 
@@ -211,13 +225,15 @@ func (list ListModel) View() string {
 
 		content := make([]strings.Builder, cellsLength)
 
-		content[0].WriteString(entry.Name)
+		name := truncateText(entry.Name, list.truncateLimit)
+
+		content[0].WriteString(strings.ReplaceAll(name, "-", "_")) // FIXME: Temporary Solution
 		content[1].WriteString(entry.Size)
 		content[2].WriteString(entry.ModifyTime)
 
 		for i := 0; i < cellsLength; i++ {
 
-			style := lipgloss.NewStyle()
+			var style lipgloss.Style
 			offset := 0
 
 			if index == list.selected_index {
