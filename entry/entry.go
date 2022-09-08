@@ -1,14 +1,11 @@
 package entry
 
 import (
-	"bufio"
 	"bytes"
 	"mime"
 	"os"
 	"path/filepath"
 	"strconv"
-	"strings"
-	"unicode/utf8"
 
 	"github.com/alecthomas/chroma/formatters"
 	"github.com/alecthomas/chroma/lexers"
@@ -25,45 +22,12 @@ type Entry struct {
 	AccessTime string
 	ChangeTime string
 
-	Extension string
-	IsDir     bool
-
-	Preview string
+	Type  string
+	IsDir bool
 }
 
 type EntryMsg struct {
 	Entry Entry
-}
-
-func GetFilePreview(path string) (string, error) {
-	strBuilder := strings.Builder{}
-
-	f, err := os.Open(path)
-
-	if err != nil {
-		return "", err
-	}
-
-	defer f.Close()
-
-	scanner := bufio.NewScanner(f)
-
-	for i := 0; i < 10; i++ {
-		scanner.Scan()
-
-		strBuilder.WriteString(scanner.Text())
-		strBuilder.WriteByte('\n')
-	}
-
-	if !utf8.ValidString(strBuilder.String()) {
-		return "", nil
-	}
-
-	if err := scanner.Err(); err != nil {
-		return "", err
-	}
-
-	return strBuilder.String(), nil
 }
 
 func HighlightSyntax(name string, preview string) (string, error) {
@@ -102,7 +66,6 @@ func GetEntries(path string) ([]Entry, error) {
 
 	for _, file := range files {
 		info, err := file.Info()
-		preview := ""
 		fullPath := filepath.Join(path, file.Name())
 
 		// If the entry is a symlink, ignore it
@@ -118,20 +81,6 @@ func GetEntries(path string) ([]Entry, error) {
 
 		if err != nil {
 			return []Entry{}, err
-		}
-
-		if !file.IsDir() {
-			preview, err = GetFilePreview(fullPath)
-
-			if err != nil {
-				return []Entry{}, err
-			}
-
-			preview, err = HighlightSyntax(file.Name(), preview)
-
-			if err != nil {
-				return []Entry{}, err
-			}
 		}
 
 		// .. Get Entry size
@@ -155,25 +104,16 @@ func GetEntries(path string) ([]Entry, error) {
 			Name: file.Name(),
 			Size: size,
 
-			Extension: mime.TypeByExtension(filepath.Ext(file.Name())),
-			IsDir:     file.IsDir(),
+			Type:  mime.TypeByExtension(filepath.Ext(file.Name())),
+			IsDir: file.IsDir(),
 
 			ModifyTime: humanize.Time(timeStats.ModTime()),
 			ChangeTime: humanize.Time(timeStats.ChangeTime()),
 			AccessTime: humanize.Time(timeStats.AccessTime()),
-			Preview:    preview,
 		}
 
 		entries = append(entries, entry)
 	}
 
 	return entries, nil
-}
-
-func (entry Entry) Type() string {
-	if entry.IsDir {
-		return "Folder"
-	}
-
-	return entry.Extension + " File"
 }

@@ -163,10 +163,17 @@ func (list ListModel) Update(msg tea.Msg) (ListModel, tea.Cmd) {
 		switch msg.String() {
 		case "w", "up", "j": // Select entry above
 			list.selected_index -= 1
+			list.restrictIndex()
+			return list, func() tea.Msg {
+				return entry.EntryMsg{Entry: list.SelectedEntry()}
+			}
 
 		case "s", "down", "k": // Select entry below
 			list.selected_index += 1
-
+			list.restrictIndex()
+			return list, func() tea.Msg {
+				return entry.EntryMsg{Entry: list.SelectedEntry()}
+			}
 		case "a", "left", "h": // Get entries from parent directory
 			return list, func() tea.Msg {
 				return UpdateEntriesMsg{parent: true}
@@ -189,9 +196,14 @@ func (list ListModel) Update(msg tea.Msg) (ListModel, tea.Cmd) {
 	if !list.initialized {
 		list.initialized = true
 
-		return list, func() tea.Msg {
-			return PathMsg{list.path}
-		}
+		return list, tea.Batch(
+			func() tea.Msg {
+				return PathMsg{list.path}
+			},
+			func() tea.Msg {
+				return entry.EntryMsg{Entry: list.SelectedEntry()}
+			},
+		)
 	}
 
 	return list, nil

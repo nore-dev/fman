@@ -9,7 +9,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	zone "github.com/lrstanley/bubblezone"
 
-	"github.com/nore-dev/fman/entry"
 	"github.com/nore-dev/fman/model"
 	"github.com/nore-dev/fman/theme"
 )
@@ -45,17 +44,19 @@ func (app *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		app.flexBox.SetWidth(msg.Width)
 
 		app.flexBox.ForceRecalculate()
+
 		app.listModel.Width = app.flexBox.Row(0).Cell(0).GetWidth()
+		app.entryModel.Width = app.flexBox.Row(0).Cell(1).GetWidth()
 
 	}
 
-	var listCmd, toolbarCmd tea.Cmd
+	var listCmd, toolbarCmd, entryCmd tea.Cmd
 
 	app.listModel, listCmd = app.listModel.Update(msg)
 	app.toolbarModel, toolbarCmd = app.toolbarModel.Update(msg)
-	app.entryModel, _ = app.entryModel.Update(entry.EntryMsg{Entry: app.listModel.SelectedEntry()})
+	app.entryModel, entryCmd = app.entryModel.Update(msg)
 
-	return app, tea.Batch(listCmd, toolbarCmd)
+	return app, tea.Batch(listCmd, toolbarCmd, entryCmd)
 }
 
 func (app *App) View() string {
