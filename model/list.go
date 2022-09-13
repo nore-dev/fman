@@ -146,6 +146,16 @@ func (list ListModel) Update(msg tea.Msg) (ListModel, tea.Cmd) {
 	fullPath := filepath.Join(list.path, list.SelectedEntry().Name)
 
 	switch msg := msg.(type) {
+	case PathMsg:
+		var err error
+
+		list.path = msg.path
+		list.entries, err = entry.GetEntries(list.path)
+
+		if err != nil {
+			panic(err)
+		}
+
 	case UpdateEntriesMsg:
 		if msg.parent {
 			list.getEntriesAbove()

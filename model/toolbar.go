@@ -8,7 +8,8 @@ import (
 )
 
 type ToolbarModel struct {
-	path string
+	path         string
+	editablePath PathModel
 }
 
 func NewToolbarModel() ToolbarModel {
@@ -43,10 +44,12 @@ func (toolbar ToolbarModel) Update(msg tea.Msg) (ToolbarModel, tea.Cmd) {
 			}
 		}
 
-		return toolbar, nil
 	}
 
-	return toolbar, nil
+	var pathCmd tea.Cmd
+	toolbar.editablePath, pathCmd = toolbar.editablePath.Update(msg)
+
+	return toolbar, pathCmd
 }
 
 func (toolbar ToolbarModel) View() string {
@@ -56,5 +59,5 @@ func (toolbar ToolbarModel) View() string {
 		zone.Mark("forward", theme.ButtonStyle.Render("→")),
 	)
 
-	return lipgloss.JoinHorizontal(lipgloss.Center, view, toolbar.path)
+	return lipgloss.JoinHorizontal(lipgloss.Center, view, toolbar.editablePath.View())
 }

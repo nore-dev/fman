@@ -12,6 +12,12 @@ var EvenItemStyle = lipgloss.NewStyle().
 	Background(lipgloss.Color("#666")).
 	Height(1)
 
+var PathStyle = lipgloss.NewStyle().
+	Background(lipgloss.Color("#555")).
+	Foreground(lipgloss.Color("#ddd")).
+	BorderForeground(lipgloss.Color("#aaa")).
+	Border(lipgloss.NormalBorder(), false, true)
+
 var SelectedItemStyle = lipgloss.NewStyle().
 	Background(lipgloss.Color("#00ffff")).
 	Foreground(lipgloss.Color("#222"))
