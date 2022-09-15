@@ -2,6 +2,7 @@ package entry
 
 import (
 	"bytes"
+	"io/fs"
 	"mime"
 	"os"
 	"path/filepath"
@@ -22,8 +23,10 @@ type Entry struct {
 	AccessTime string
 	ChangeTime string
 
-	Type  string
-	IsDir bool
+	Type        string
+	IsDir       bool
+	SymlinkName string
+	SymLinkPath string
 }
 
 type EntryMsg struct {
@@ -55,6 +58,45 @@ func HighlightSyntax(name string, preview string) (string, error) {
 	return buffer.String(), nil
 }
 
+func GetEntry(info fs.FileInfo, path string) (Entry, error) {
+
+	timeStats, err := times.Stat(path)
+
+	if err != nil {
+		return Entry{}, err
+	}
+
+	// .. Get Entry size
+	size := humanize.IBytes(uint64(info.Size()))
+
+	if info.IsDir() {
+		_entries, err := os.ReadDir(path)
+
+		if err != nil {
+			return Entry{}, nil
+		}
+
+		size = strconv.Itoa(len(_entries)) + " entries"
+
+		if len(_entries) == 0 {
+			size = "Empty Folder"
+		}
+	}
+
+	return Entry{
+		Name: info.Name(),
+		Size: size,
+
+		Type:  mime.TypeByExtension(filepath.Ext(info.Name())),
+		IsDir: info.IsDir(),
+
+		ModifyTime: humanize.Time(timeStats.ModTime()),
+		ChangeTime: humanize.Time(timeStats.ChangeTime()),
+		AccessTime: humanize.Time(timeStats.AccessTime()),
+	}, nil
+
+}
+
 func GetEntries(path string) ([]Entry, error) {
 	entries := []Entry{}
 
@@ -68,48 +110,34 @@ func GetEntries(path string) ([]Entry, error) {
 		info, err := file.Info()
 		fullPath := filepath.Join(path, file.Name())
 
-		// If the entry is a symlink, ignore it
+		if err != nil {
+			return []Entry{}, err
+		}
+
+		entry, err := GetEntry(info, fullPath)
+
+		if err != nil {
+			return []Entry{}, err
+		}
+
+		// Handle Symlinks
 		if info.Mode()&os.ModeSymlink != 0 {
-			continue
-		}
+			fullPath, _ = os.Readlink(fullPath)
 
-		if err != nil {
-			return []Entry{}, err
-		}
-
-		timeStats, err := times.Stat(fullPath)
-
-		if err != nil {
-			return []Entry{}, err
-		}
-
-		// .. Get Entry size
-		size := humanize.IBytes(uint64(info.Size()))
-
-		if file.IsDir() {
-			_entries, err := os.ReadDir(fullPath)
+			symInfo, err := os.Stat(fullPath)
 
 			if err != nil {
-				return []Entry{}, nil
+				return []Entry{}, err
 			}
 
-			size = strconv.Itoa(len(_entries)) + " entries"
+			entry, err = GetEntry(symInfo, fullPath)
 
-			if len(_entries) == 0 {
-				size = "Empty Folder"
+			if err != nil {
+				return []Entry{}, err
 			}
-		}
 
-		entry := Entry{
-			Name: file.Name(),
-			Size: size,
-
-			Type:  mime.TypeByExtension(filepath.Ext(file.Name())),
-			IsDir: file.IsDir(),
-
-			ModifyTime: humanize.Time(timeStats.ModTime()),
-			ChangeTime: humanize.Time(timeStats.ChangeTime()),
-			AccessTime: humanize.Time(timeStats.AccessTime()),
+			entry.SymlinkName = info.Name()
+			entry.SymLinkPath = fullPath
 		}
 
 		entries = append(entries, entry)

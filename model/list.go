@@ -70,7 +70,11 @@ func detectOpenCommand() string {
 
 func NewListModel() ListModel {
 
-	path, _ := filepath.Abs(".")
+	path, err := filepath.Abs(".")
+
+	if err != nil {
+		panic(err)
+	}
 
 	entries, err := entry.GetEntries(path)
 
@@ -123,6 +127,10 @@ func (list *ListModel) getEntriesBelow() {
 	}
 
 	list.path = filepath.Join(list.path, list.SelectedEntry().Name)
+
+	if list.SelectedEntry().SymLinkPath != "" {
+		list.path = list.SelectedEntry().SymLinkPath
+	}
 
 	entries, err := entry.GetEntries(list.path)
 
@@ -249,13 +257,19 @@ func (list ListModel) View() string {
 
 		name := truncateText(entry.Name, list.truncateLimit)
 
-		content[0].WriteString(strings.ReplaceAll(name, "-", "_")) // FIXME: Temporary Solution
+		if entry.SymlinkName != "" {
+			content[0].WriteByte('@')
+			content[0].WriteString(strings.ReplaceAll(entry.SymlinkName, "-", "_"))
+
+		} else {
+			content[0].WriteString(strings.ReplaceAll(name, "-", "_")) // FIXME: Temporary Solution
+		}
 		content[1].WriteString(entry.Size)
 		content[2].WriteString(entry.ModifyTime)
 
+		var style lipgloss.Style
 		for i := 0; i < cellsLength; i++ {
 
-			var style lipgloss.Style
 			offset := 0
 
 			if index == list.selected_index {
@@ -269,7 +283,11 @@ func (list ListModel) View() string {
 				offset = 2
 			}
 
-			style.Width(list.flexBox.Row(0).Cell(i).GetWidth() - offset)
+			style = style.Width(list.flexBox.Row(0).Cell(i).GetWidth() - offset)
+
+			if i == 0 && entry.SymlinkName != "" {
+				style = style.Bold(true).Underline(true)
+			}
 
 			contents[i].WriteString(style.Render(content[i].String()))
 			contents[i].WriteByte('\n')
