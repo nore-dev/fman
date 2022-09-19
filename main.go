@@ -17,6 +17,7 @@ type App struct {
 	listModel    model.ListModel
 	entryModel   model.EntryModel
 	toolbarModel model.ToolbarModel
+	infobarModel model.InfobarModel
 
 	flexBox *stickers.FlexBox
 }
@@ -39,8 +40,9 @@ func (app *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tea.WindowSizeMsg:
 		toolbarHeight := 3
+		infobarHeight := 1
 
-		app.flexBox.SetHeight(msg.Height - toolbarHeight)
+		app.flexBox.SetHeight(msg.Height - toolbarHeight - infobarHeight)
 		app.flexBox.SetWidth(msg.Width)
 
 		app.flexBox.ForceRecalculate()
@@ -50,13 +52,14 @@ func (app *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	}
 
-	var listCmd, toolbarCmd, entryCmd tea.Cmd
+	var listCmd, toolbarCmd, entryCmd, infobarCmd tea.Cmd
 
 	app.listModel, listCmd = app.listModel.Update(msg)
 	app.toolbarModel, toolbarCmd = app.toolbarModel.Update(msg)
 	app.entryModel, entryCmd = app.entryModel.Update(msg)
+	app.infobarModel, infobarCmd = app.infobarModel.Update(msg)
 
-	return app, tea.Batch(listCmd, toolbarCmd, entryCmd)
+	return app, tea.Batch(listCmd, toolbarCmd, entryCmd, infobarCmd)
 }
 
 func (app *App) View() string {
@@ -73,7 +76,9 @@ func (app *App) View() string {
 	return zone.Scan(lipgloss.JoinVertical(
 		lipgloss.Top,
 		app.toolbarModel.View(),
-		app.flexBox.Render()))
+		app.flexBox.Render(),
+		app.infobarModel.View(),
+	))
 }
 
 func main() {
