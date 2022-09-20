@@ -67,7 +67,7 @@ func (model EntryModel) Update(msg tea.Msg) (EntryModel, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case PathMsg:
-		model.path = msg.path
+		model.path = msg.Path
 	case entry.EntryMsg:
 		model.entry = msg.Entry
 

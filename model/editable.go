@@ -30,7 +30,7 @@ func (editable PathModel) Init() tea.Cmd {
 func (editable PathModel) Update(msg tea.Msg) (PathModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case PathMsg:
-		editable.path = msg.path
+		editable.path = msg.Path
 	case tea.MouseMsg:
 		if msg.Type != tea.MouseLeft {
 			return editable, nil

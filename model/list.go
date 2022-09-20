@@ -18,7 +18,8 @@ type ListModel struct {
 
 	path string
 
-	Width int
+	Width  int
+	Height int
 
 	selected_index int
 	flexBox        *stickers.FlexBox
@@ -34,7 +35,7 @@ type UpdateEntriesMsg struct {
 }
 
 type PathMsg struct {
-	path string
+	Path string
 }
 
 func max(a, b int) int {
@@ -83,12 +84,11 @@ func NewListModel() ListModel {
 	}
 
 	list := ListModel{
-		path:           path,
-		entries:        entries,
-		flexBox:        stickers.NewFlexBox(0, 0),
-		maxEntryToShow: 23,
-		truncateLimit:  40,
-		initialized:    false,
+		path:          path,
+		entries:       entries,
+		truncateLimit: 100,
+		flexBox:       stickers.NewFlexBox(0, 0),
+		initialized:   false,
 	}
 
 	rows := []*stickers.FlexBoxRow{
@@ -157,7 +157,7 @@ func (list ListModel) Update(msg tea.Msg) (ListModel, tea.Cmd) {
 	case PathMsg:
 		var err error
 
-		list.path = msg.path
+		list.path = msg.Path
 		list.entries, err = entry.GetEntries(list.path)
 
 		if err != nil {
@@ -207,6 +207,13 @@ func (list ListModel) Update(msg tea.Msg) (ListModel, tea.Cmd) {
 
 	case tea.WindowSizeMsg:
 		list.flexBox.SetWidth(list.Width)
+		list.flexBox.SetHeight(list.Height)
+
+		list.flexBox.ForceRecalculate()
+
+		list.truncateLimit = list.flexBox.Row(0).Cell(0).GetWidth() - 1
+		list.maxEntryToShow = list.Height * 3 / 4
+
 	}
 
 	list.restrictIndex()

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/76creates/stickers"
 	tea "github.com/charmbracelet/bubbletea"
@@ -23,7 +24,16 @@ type App struct {
 }
 
 func (app *App) Init() tea.Cmd {
-	return nil
+	return func() tea.Msg {
+		path := "."
+
+		if len(os.Args) >= 2 {
+			path = os.Args[1]
+		}
+
+		absolutePath, _ := filepath.Abs(path)
+		return model.PathMsg{Path: absolutePath}
+	}
 }
 
 func (app *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -39,16 +49,15 @@ func (app *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 	case tea.WindowSizeMsg:
-		toolbarHeight := 3
-		infobarHeight := 1
-
-		app.flexBox.SetHeight(msg.Height - toolbarHeight - infobarHeight)
+		app.flexBox.SetHeight(msg.Height - lipgloss.Height(app.toolbarModel.View()) - lipgloss.Height(app.toolbarModel.View()))
 		app.flexBox.SetWidth(msg.Width)
 
 		app.flexBox.ForceRecalculate()
 
 		app.listModel.Width = app.flexBox.Row(0).Cell(0).GetWidth()
 		app.entryModel.Width = app.flexBox.Row(0).Cell(1).GetWidth()
+
+		app.listModel.Height = app.flexBox.GetHeight()
 
 	}
 

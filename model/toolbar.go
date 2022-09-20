@@ -25,7 +25,7 @@ func (toolbar ToolbarModel) Update(msg tea.Msg) (ToolbarModel, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case PathMsg:
-		toolbar.path = msg.path
+		toolbar.path = msg.Path
 
 	case tea.MouseMsg:
 		if msg.Type != tea.MouseLeft {
