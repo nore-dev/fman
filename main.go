@@ -85,7 +85,7 @@ func (app *App) View() string {
 	return zone.Scan(lipgloss.JoinVertical(
 		lipgloss.Top,
 		app.toolbarModel.View(),
-		app.flexBox.Render(),
+		zone.Mark("list", app.flexBox.Render()),
 		app.infobarModel.View(),
 	))
 }

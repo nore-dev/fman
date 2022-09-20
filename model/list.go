@@ -5,10 +5,12 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/76creates/stickers"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	zone "github.com/lrstanley/bubblezone"
 	"github.com/nore-dev/fman/entry"
 	"github.com/nore-dev/fman/theme"
 )
@@ -28,6 +30,9 @@ type ListModel struct {
 	truncateLimit  int
 
 	initialized bool
+
+	lastClickedTime time.Time
+	clickDelay      float64
 }
 
 type UpdateEntriesMsg struct {
@@ -40,6 +45,14 @@ type PathMsg struct {
 
 func max(a, b int) int {
 	if a > b {
+		return a
+	}
+
+	return b
+}
+
+func min(a, b int) int {
+	if a < b {
 		return a
 	}
 
@@ -89,6 +102,7 @@ func NewListModel() ListModel {
 		truncateLimit: 100,
 		flexBox:       stickers.NewFlexBox(0, 0),
 		initialized:   false,
+		clickDelay:    0.5,
 	}
 
 	rows := []*stickers.FlexBoxRow{
@@ -214,6 +228,38 @@ func (list ListModel) Update(msg tea.Msg) (ListModel, tea.Cmd) {
 		list.truncateLimit = list.flexBox.Row(0).Cell(0).GetWidth() - 1
 		list.maxEntryToShow = list.Height * 3 / 4
 
+	case tea.MouseMsg:
+		if msg.Type != tea.MouseLeft || !zone.Get("list").InBounds(msg) {
+			return list, nil
+		}
+
+		_, y := zone.Get("list").Pos(msg)
+
+		offset := 2
+
+		if y < offset || y > len(list.entries)+offset-1 {
+			return list, nil
+		}
+
+		list.selected_index = y + max(0, list.selected_index-list.maxEntryToShow) - offset
+
+		// Double click
+		time := time.Now()
+
+		if time.Sub(list.lastClickedTime).Seconds() < list.clickDelay && list.SelectedEntry().IsDir {
+			list.getEntriesBelow()
+			list.restrictIndex()
+			return list, func() tea.Msg {
+				return UpdateEntriesMsg{}
+			}
+		}
+
+		list.lastClickedTime = time
+		// Update entry info model
+		return list, func() tea.Msg {
+			return entry.EntryMsg{Entry: list.SelectedEntry()}
+		}
+
 	}
 
 	list.restrictIndex()
@@ -256,10 +302,10 @@ func (list ListModel) View() string {
 	contents[2].WriteByte('\n')
 
 	startIndex := max(0, list.selected_index-list.maxEntryToShow)
+	stopIndex := min(len(list.entries), startIndex+list.maxEntryToShow+(list.Height*1/4))
 
-	for index := startIndex; index < len(list.entries); index++ {
+	for index := startIndex; index < stopIndex; index++ {
 		entry := list.entries[index]
-
 		content := make([]strings.Builder, cellsLength)
 
 		name := truncateText(entry.Name, list.truncateLimit)
