@@ -66,9 +66,10 @@ func GetEntry(info fs.FileInfo, path string) (Entry, error) {
 		return Entry{}, err
 	}
 
-	// .. Get Entry size
+	// Get Entry size
 	size := humanize.IBytes(uint64(info.Size()))
 
+	// If entry is a folder, get count of entries under this directory
 	if info.IsDir() {
 		_entries, err := os.ReadDir(path)
 
@@ -117,12 +118,16 @@ func GetEntries(path string) ([]Entry, error) {
 		entry, err := GetEntry(info, fullPath)
 
 		if err != nil {
-			return []Entry{}, err
+			continue
 		}
 
 		// Handle Symlinks
 		if info.Mode()&os.ModeSymlink != 0 {
-			fullPath, _ = os.Readlink(fullPath)
+			fullPath, err = os.Readlink(fullPath)
+
+			if err != nil {
+				continue
+			}
 
 			symInfo, err := os.Stat(fullPath)
 

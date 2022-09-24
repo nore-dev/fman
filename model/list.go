@@ -164,9 +164,6 @@ func (list *ListModel) restrictIndex() {
 }
 
 func (list ListModel) Update(msg tea.Msg) (ListModel, tea.Cmd) {
-
-	fullPath := filepath.Join(list.path, list.SelectedEntry().Name)
-
 	switch msg := msg.(type) {
 	case PathMsg:
 		var err error
@@ -215,6 +212,13 @@ func (list ListModel) Update(msg tea.Msg) (ListModel, tea.Cmd) {
 				return UpdateEntriesMsg{}
 			}
 		case "enter": // Open file with default application
+			fullPath := filepath.Join(list.path, list.SelectedEntry().Name)
+
+			// Handle Symlink
+			if list.SelectedEntry().SymLinkPath != "" {
+				fullPath = list.SelectedEntry().SymLinkPath
+			}
+
 			cmd := exec.Command(detectOpenCommand(), fullPath)
 			cmd.Run()
 		}

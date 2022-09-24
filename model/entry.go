@@ -77,6 +77,11 @@ func (model EntryModel) Update(msg tea.Msg) (EntryModel, tea.Cmd) {
 			var err error
 			fullPath := filepath.Join(model.path, model.entry.Name)
 
+			// Handle Symlink
+			if model.entry.SymLinkPath != "" {
+				fullPath = model.entry.SymLinkPath
+			}
+
 			model.preview, err = model.getFilePreview(fullPath)
 
 			if err != nil {
