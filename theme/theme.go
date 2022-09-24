@@ -2,27 +2,50 @@ package theme
 
 import "github.com/charmbracelet/lipgloss"
 
-var ContainerStyle = lipgloss.NewStyle().Padding(1).Border(lipgloss.NormalBorder(), false, true)
+type Theme struct {
+	EvenItemBgColor lipgloss.Color
 
-var BoldStyle = lipgloss.NewStyle().Bold(true)
+	SelectedItemBgColor lipgloss.Color
+	SelectedItemFgColor lipgloss.Color
 
-var ListStyle = ContainerStyle.Copy()
+	ButtonBgColor       lipgloss.Color
+	ButtonBorderFgColor lipgloss.Color
 
-var EvenItemStyle = lipgloss.NewStyle().
-	Background(lipgloss.Color("#666")).
-	Height(1)
+	PathElementBgColor       lipgloss.Color
+	PathElementFgColor       lipgloss.Color
+	PathElementBorderFgColor lipgloss.Color
 
-var PathStyle = lipgloss.NewStyle().
-	Background(lipgloss.Color("#555")).
-	Foreground(lipgloss.Color("#ddd")).
-	BorderForeground(lipgloss.Color("#aaa")).
-	Border(lipgloss.NormalBorder(), false, true)
+	ListBgColor lipgloss.Color
+	ListFgColor lipgloss.Color
 
-var SelectedItemStyle = lipgloss.NewStyle().
-	Background(lipgloss.Color("#00ffff")).
-	Foreground(lipgloss.Color("#222"))
+	LogoBgColor lipgloss.Color
+	LogoFgColor lipgloss.Color
 
-var ButtonStyle = lipgloss.NewStyle().Padding(0, 1).
-	Border(lipgloss.NormalBorder(), false, true).
-	BorderForeground(lipgloss.Color("#666")).
-	Background(lipgloss.Color("#666"))
+	ProgressBarBgColor lipgloss.Color
+	ProgressBarFgColor lipgloss.Color
+}
+
+func SetTheme(theme Theme) {
+	EvenItemStyle.Background(theme.EvenItemBgColor)
+
+	SelectedItemStyle.Background(theme.SelectedItemBgColor)
+	SelectedItemStyle.Foreground(theme.SelectedItemFgColor)
+
+	ButtonStyle.BorderForeground(theme.ButtonBorderFgColor)
+	ButtonStyle.Background(theme.ButtonBgColor)
+
+	PathStyle.Background(theme.PathElementBgColor)
+	PathStyle.Foreground(theme.PathElementFgColor)
+	PathStyle.BorderForeground(theme.PathElementBorderFgColor)
+
+	AppStyle.Background(theme.ListBgColor)
+	AppStyle.Foreground(theme.ListFgColor)
+
+	LogoStyle.Background(theme.LogoBgColor)
+	LogoStyle.Foreground(theme.LogoFgColor)
+
+	ProgressStyle.Background(theme.ProgressBarBgColor)
+	ProgressStyle.Foreground(theme.ProgressBarFgColor)
+	ProgressStyle.BorderForeground(theme.ProgressBarBgColor)
+
+}

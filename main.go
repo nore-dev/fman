@@ -95,18 +95,21 @@ func main() {
 	zone.NewGlobal()
 	defer zone.Close()
 
+	theme.SetTheme(theme.DefaultTheme)
+
 	app := App{
 		listModel:    model.NewListModel(),
 		entryModel:   model.NewEntryModel(),
 		toolbarModel: model.NewToolbarModel(),
+		infobarModel: model.NewInfobarModel(),
 		flexBox:      stickers.NewFlexBox(0, 0),
 	}
 
 	rows := []*stickers.FlexBoxRow{
 		app.flexBox.NewRow().AddCells(
 			[]*stickers.FlexBoxCell{
-				stickers.NewFlexBoxCell(7, 1).SetStyle(lipgloss.NewStyle().Padding(1)), // List
-				stickers.NewFlexBoxCell(3, 1).SetStyle(theme.ContainerStyle),           // Entry Information
+				stickers.NewFlexBoxCell(7, 1).SetStyle(theme.ListStyle),      // List
+				stickers.NewFlexBoxCell(3, 1).SetStyle(theme.ContainerStyle), // Entry Information
 			},
 		),
 	}

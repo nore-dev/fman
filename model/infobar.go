@@ -7,10 +7,18 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/dustin/go-humanize"
 	"github.com/nore-dev/fman/storage"
+	"github.com/nore-dev/fman/theme"
 )
 
 type InfobarModel struct {
-	width int
+	width         int
+	progressWidth int
+}
+
+func NewInfobarModel() InfobarModel {
+	return InfobarModel{
+		progressWidth: 20,
+	}
 }
 
 func (infobar InfobarModel) Init() tea.Cmd {
@@ -26,27 +34,19 @@ func (infobar InfobarModel) Update(msg tea.Msg) (InfobarModel, tea.Cmd) {
 	return infobar, nil
 }
 
-func renderProgress(availableSpace, totalSpace uint64) string {
-	var width uint64 = 20
+func renderProgress(width int, availableSpace uint64, totalSpace uint64) string {
+	availableWidth := (int(availableSpace) * width / int(totalSpace))
+	usedSpaceWidth := strings.Repeat("█", width-availableWidth)
 
-	availableWidth := (availableSpace * width / totalSpace)
-
-	availableStr := strings.Repeat(" ", int(availableWidth))
-	totalStr := strings.Repeat(" ", int(width-availableWidth))
-
-	return lipgloss.JoinHorizontal(lipgloss.Center,
-		lipgloss.NewStyle().Background(lipgloss.Color("#aaa")).Render(totalStr),
-		lipgloss.NewStyle().Background(lipgloss.Color("#555")).Render(availableStr),
-	)
+	return theme.ProgressStyle.Width(width).Render(usedSpaceWidth)
 }
 
 func (infobar InfobarModel) View() string {
 
-	logo := lipgloss.NewStyle().Background(lipgloss.Color("#0aa")).Padding(0, 1).Foreground(lipgloss.Color("#fff")).Render("FMAN")
+	logo := theme.LogoStyle.Render("FMAN")
 	info, _ := storage.GetStorageInfo()
 
-	progress := renderProgress(info.AvailableSpace, info.TotalSpace)
-	progress = lipgloss.NewStyle().Border(lipgloss.NormalBorder(), false, true).Render(progress)
+	progress := renderProgress(infobar.progressWidth, info.AvailableSpace, info.TotalSpace)
 
 	view := lipgloss.JoinHorizontal(lipgloss.Center, progress, " ", humanize.IBytes(info.AvailableSpace), "/", humanize.IBytes(info.TotalSpace))
 
