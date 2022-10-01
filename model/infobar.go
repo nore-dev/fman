@@ -34,11 +34,11 @@ func (infobar InfobarModel) Update(msg tea.Msg) (InfobarModel, tea.Cmd) {
 	return infobar, nil
 }
 
-func renderProgress(width int, availableSpace uint64, totalSpace uint64) string {
-	availableWidth := (int(availableSpace) * width / int(totalSpace))
-	usedSpaceWidth := strings.Repeat("█", width-availableWidth)
+func renderProgress(width int, usedSpace uint64, totalSpace uint64) string {
+	usedWidth := (int(usedSpace) * width / int(totalSpace))
+	usedStr := strings.Repeat("█", int(width-usedWidth))
 
-	return theme.ProgressStyle.Width(width).Render(usedSpaceWidth)
+	return theme.ProgressStyle.Width(width).Render(usedStr)
 }
 
 func (infobar InfobarModel) View() string {
