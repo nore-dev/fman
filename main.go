@@ -24,6 +24,10 @@ type App struct {
 }
 
 func (app *App) Init() tea.Cmd {
+	return tea.Batch(app.infobarModel.Init(), app.UpdatePath())
+}
+
+func (app *App) UpdatePath() tea.Cmd {
 	return func() tea.Msg {
 		path := "."
 

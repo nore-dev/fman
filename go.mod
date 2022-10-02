@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/76creates/stickers v0.0.0-20220613133526-beb5a915bb0e
 	github.com/alecthomas/chroma v0.10.0
+	github.com/atotto/clipboard v0.1.4
 	github.com/charmbracelet/bubbletea v0.22.1
 	github.com/charmbracelet/lipgloss v0.5.0
 	github.com/djherbis/times v1.5.0
