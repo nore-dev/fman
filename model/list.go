@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/76creates/stickers"
+	"github.com/atotto/clipboard"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	zone "github.com/lrstanley/bubblezone"
@@ -166,6 +167,16 @@ func (list *ListModel) restrictIndex() {
 	}
 }
 
+func getFullPath(entry entry.Entry, path string) string {
+	fullPath := filepath.Join(path, entry.Name)
+
+	if entry.SymLinkPath != "" {
+		fullPath = entry.SymLinkPath
+	}
+
+	return fullPath
+}
+
 func (list ListModel) Update(msg tea.Msg) (ListModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case PathMsg:
@@ -193,6 +204,14 @@ func (list ListModel) Update(msg tea.Msg) (ListModel, tea.Cmd) {
 
 	case tea.KeyMsg:
 		switch msg.String() {
+		case "c": // Copy path to the clipboard
+			path := getFullPath(list.SelectedEntry(), list.path)
+
+			clipboard.WriteAll(path)
+
+			return list, func() tea.Msg {
+				return NewMessageMsg{"Copied!"}
+			}
 		case "w", "up", "j": // Select entry above
 			list.selected_index -= 1
 			list.restrictIndex()
@@ -215,14 +234,8 @@ func (list ListModel) Update(msg tea.Msg) (ListModel, tea.Cmd) {
 				return UpdateEntriesMsg{}
 			}
 		case "enter": // Open file with default application
-			fullPath := filepath.Join(list.path, list.SelectedEntry().Name)
-
 			// Handle Symlink
-			if list.SelectedEntry().SymLinkPath != "" {
-				fullPath = list.SelectedEntry().SymLinkPath
-			}
-
-			cmd := exec.Command(detectOpenCommand(), fullPath)
+			cmd := exec.Command(detectOpenCommand(), getFullPath(list.SelectedEntry(), list.path))
 			cmd.Run()
 		}
 

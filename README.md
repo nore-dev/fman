@@ -18,14 +18,15 @@
 
 ## Keybindings
 
-|      Key      |              Description              |
-|:-------------:|:-------------------------------------:|
-|  `q, Ctrl+C`  |         Exit from application         |
-|  `a, h, left` |        Move to parent directory       |
-| `d, l, right` |       Move to selected directory      |
-|  `s, j, down` |            Move cursor down           |
-|   `w, k, up`  |             Move cursor up            |
-|    `enter`    | Open file/folder with default program |
+|      Key      |                Description                |
+|:-------------:|:-----------------------------------------:|
+|  `q, Ctrl+C`  |           Exit from application           |
+|  `a, h, left` |          Move to parent directory         |
+| `d, l, right` |         Move to selected directory        |
+|  `s, j, down` |              Move cursor down             |
+|   `w, k, up`  |               Move cursor up              |
+|    `enter`    |   Open file/folder with default program   |
+|       `c`     | Copy selected entry path to the clipboard |
 
 ## Built With
 Without these projects this project would not have existed at all.
