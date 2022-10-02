@@ -33,6 +33,8 @@ type ListModel struct {
 
 	lastClickedTime time.Time
 	clickDelay      float64
+
+	theme *theme.Theme
 }
 
 type UpdateEntriesMsg struct {
@@ -82,7 +84,7 @@ func detectOpenCommand() string {
 	return "start"
 }
 
-func NewListModel() ListModel {
+func NewListModel(theme *theme.Theme) ListModel {
 
 	path, err := filepath.Abs(".")
 
@@ -103,6 +105,7 @@ func NewListModel() ListModel {
 		flexBox:       stickers.NewFlexBox(0, 0),
 		initialized:   false,
 		clickDelay:    0.5,
+		theme:         theme,
 	}
 
 	rows := []*stickers.FlexBoxRow{
@@ -344,6 +347,27 @@ func (list ListModel) View() string {
 
 			if i == 0 && entry.SymlinkName != "" {
 				style = style.Bold(true).Underline(true)
+			} else {
+				style = style.UnsetBold().UnsetUnderline()
+			}
+
+			// Colors
+			if index == list.selected_index {
+				style = style.Foreground(list.Theme().SelectedItemFgColor)
+			} else if entry.Name[0] == '.' {
+				style = style.Foreground(list.Theme().HiddenFileColor)
+
+				if entry.IsDir {
+					style = style.Foreground(list.Theme().HiddenFolderColor)
+				}
+			} else if entry.IsDir {
+				style = style.Foreground(list.Theme().FolderColor)
+			} else {
+				style = style.Foreground(list.Theme().TextColor)
+			}
+
+			if i != 0 && index != list.selected_index {
+				style = style.Foreground(list.Theme().TextColor)
 			}
 
 			contents[i].WriteString(style.Render(content[i].String()))
@@ -365,4 +389,8 @@ func (list ListModel) SelectedEntry() entry.Entry {
 	}
 
 	return list.entries[list.selected_index]
+}
+
+func (list ListModel) Theme() *theme.Theme {
+	return list.theme
 }

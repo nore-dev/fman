@@ -23,4 +23,9 @@ var DefaultTheme = Theme{
 
 	ProgressBarBgColor: lipgloss.Color("#44475a"),
 	ProgressBarFgColor: lipgloss.Color("#ffb86c"),
+
+	HiddenFileColor:   lipgloss.Color("#8be9fd"),
+	HiddenFolderColor: lipgloss.Color("#bd93f9"),
+	FolderColor:       lipgloss.Color("#ffb86c"),
+	TextColor:         lipgloss.Color("#ddd"),
 }

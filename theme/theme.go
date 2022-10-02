@@ -23,6 +23,13 @@ type Theme struct {
 
 	ProgressBarBgColor lipgloss.Color
 	ProgressBarFgColor lipgloss.Color
+
+	HiddenFileColor   lipgloss.Color
+	HiddenFolderColor lipgloss.Color
+
+	FolderColor lipgloss.Color
+
+	TextColor lipgloss.Color
 }
 
 func SetTheme(theme Theme) {
