@@ -24,7 +24,7 @@ type App struct {
 }
 
 func (app *App) Init() tea.Cmd {
-	return tea.Batch(app.infobarModel.Init(), app.UpdatePath())
+	return tea.Batch(app.infobarModel.Init(), app.UpdatePath(), app.listModel.Init())
 }
 
 func (app *App) UpdatePath() tea.Cmd {

@@ -1,6 +1,7 @@
 package model
 
 import (
+	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
@@ -36,12 +37,15 @@ type ListModel struct {
 	clickDelay      float64
 
 	theme *theme.Theme
+
+	lastKeyCharacter byte
 }
 
 type UpdateEntriesMsg struct {
 	parent bool
 }
-
+type ClearKeyMsg struct {
+}
 type PathMsg struct {
 	Path string
 }
@@ -125,7 +129,13 @@ func NewListModel(theme *theme.Theme) ListModel {
 }
 
 func (list ListModel) Init() tea.Cmd {
-	return nil
+	return list.clearLastKey()
+}
+
+func (list ListModel) clearLastKey() tea.Cmd {
+	return tea.Tick(time.Second, func(t time.Time) tea.Msg {
+		return ClearKeyMsg{}
+	})
 }
 
 func (list *ListModel) getEntriesAbove() {
@@ -202,8 +212,25 @@ func (list ListModel) Update(msg tea.Msg) (ListModel, tea.Cmd) {
 			return PathMsg{list.path}
 		}
 
+	case ClearKeyMsg:
+		list.lastKeyCharacter = ' '
+		return list, list.clearLastKey()
 	case tea.KeyMsg:
 		switch msg.String() {
+		case "g": // Move to the beginning of the list
+			if list.lastKeyCharacter == 'g' {
+				list.selected_index = 0
+			}
+			list.lastKeyCharacter = 'g'
+		case "G": // Move to the end of the list
+			list.selected_index = len(list.entries) - 1
+
+		case "~", ".": // Move to the home directory
+			homeDir, _ := os.UserHomeDir()
+
+			return list, func() tea.Msg {
+				return PathMsg{homeDir}
+			}
 		case "c": // Copy path to the clipboard
 			path := getFullPath(list.SelectedEntry(), list.path)
 
