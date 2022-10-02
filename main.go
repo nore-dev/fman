@@ -95,10 +95,13 @@ func main() {
 	zone.NewGlobal()
 	defer zone.Close()
 
+	selectedTheme := theme.DefaultTheme
+
 	theme.SetTheme(theme.DefaultTheme)
+	listModel := model.NewListModel(&selectedTheme)
 
 	app := App{
-		listModel:    model.NewListModel(),
+		listModel:    listModel,
 		entryModel:   model.NewEntryModel(),
 		toolbarModel: model.NewToolbarModel(),
 		infobarModel: model.NewInfobarModel(),
