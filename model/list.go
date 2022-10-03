@@ -223,7 +223,7 @@ func (list ListModel) Update(msg tea.Msg) (ListModel, tea.Cmd) {
 		case "m": // Show hidden files
 			list.showHidden = !list.showHidden
 			return list, func() tea.Msg {
-				return UpdateEntriesMsg{parent: false}
+				return PathMsg{list.path}
 			}
 		case "g": // Move to the beginning of the list
 			if list.lastKeyCharacter == 'g' {
