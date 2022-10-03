@@ -23,15 +23,16 @@ $ go install github.com/nore-dev/fman@latest
 |      Key      |                Description                |
 |:-------------:|:-----------------------------------------:|
 |  `q, Ctrl+C`  |           Exit from application           |
-|  `a, h, left` |          Move to parent directory         |
-| `d, l, right` |         Move to selected directory        |
-|  `s, j, down` |              Move cursor down             |
-|   `w, k, up`  |               Move cursor up              |
+| `a, h, left`  |         Move to parent directory          |
+| `d, l, right` |        Move to selected directory         |
+| `s, j, down`  |             Move cursor down              |
+|  `w, k, up`   |              Move cursor up               |
 |    `enter`    |   Open file/folder with default program   |
-|       `c`     | Copy selected entry path to the clipboard |
+|      `c`      | Copy selected entry path to the clipboard |
 |   `shift+g`   |        Move to the end of the list        |
-|      `gg`     |     Move to the beginning of the list     |
-|     `~, .`    |         Move to the home directory        |
+|     `gg`      |     Move to the beginning of the list     |
+|      `m`      |        Toggle showing hidden Files        |
+|    `~, .`     |        Move to the home directory         |
 ## Built With
 Without these projects this project would not have existed at all.
 - [Bubbletea]()
