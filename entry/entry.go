@@ -98,7 +98,7 @@ func GetEntry(info fs.FileInfo, path string) (Entry, error) {
 
 }
 
-func GetEntries(path string) ([]Entry, error) {
+func GetEntries(path string, showHidden bool) ([]Entry, error) {
 	entries := []Entry{}
 
 	files, err := os.ReadDir(path)
@@ -109,10 +109,16 @@ func GetEntries(path string) ([]Entry, error) {
 
 	for _, file := range files {
 		info, err := file.Info()
+
 		fullPath := filepath.Join(path, file.Name())
 
 		if err != nil {
 			return []Entry{}, err
+		}
+
+		hidden, err := FileHidden(file.Name())
+		if err != nil || (hidden && !showHidden) {
+			continue
 		}
 
 		entry, err := GetEntry(info, fullPath)

@@ -20,6 +20,8 @@ import (
 type ListModel struct {
 	entries []entry.Entry
 
+	showHidden bool
+
 	path string
 
 	Width  int
@@ -97,7 +99,7 @@ func NewListModel(theme *theme.Theme) ListModel {
 		panic(err)
 	}
 
-	entries, err := entry.GetEntries(path)
+	entries, err := entry.GetEntries(path, false)
 
 	if err != nil {
 		panic(err)
@@ -111,6 +113,7 @@ func NewListModel(theme *theme.Theme) ListModel {
 		initialized:   false,
 		clickDelay:    0.5,
 		theme:         theme,
+		showHidden:    false,
 	}
 
 	rows := []*stickers.FlexBoxRow{
@@ -140,7 +143,7 @@ func (list ListModel) clearLastKey() tea.Cmd {
 
 func (list *ListModel) getEntriesAbove() {
 	list.path = filepath.Dir(list.path)
-	entries, err := entry.GetEntries(list.path)
+	entries, err := entry.GetEntries(list.path, list.showHidden)
 
 	if err != nil {
 		panic(err)
@@ -160,7 +163,7 @@ func (list *ListModel) getEntriesBelow() {
 		list.path = list.SelectedEntry().SymLinkPath
 	}
 
-	entries, err := entry.GetEntries(list.path)
+	entries, err := entry.GetEntries(list.path, list.showHidden)
 
 	if err != nil {
 		panic(err)
@@ -193,7 +196,7 @@ func (list ListModel) Update(msg tea.Msg) (ListModel, tea.Cmd) {
 		var err error
 
 		list.path = msg.Path
-		list.entries, err = entry.GetEntries(list.path)
+		list.entries, err = entry.GetEntries(list.path, list.showHidden)
 
 		if err != nil {
 			panic(err)
@@ -217,6 +220,11 @@ func (list ListModel) Update(msg tea.Msg) (ListModel, tea.Cmd) {
 		return list, list.clearLastKey()
 	case tea.KeyMsg:
 		switch msg.String() {
+		case "m": // Show hidden files
+			list.showHidden = !list.showHidden
+			return list, func() tea.Msg {
+				return UpdateEntriesMsg{parent: false}
+			}
 		case "g": // Move to the beginning of the list
 			if list.lastKeyCharacter == 'g' {
 				list.selected_index = 0
