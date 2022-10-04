@@ -73,6 +73,10 @@ func (model EntryModel) Update(msg tea.Msg) (EntryModel, tea.Cmd) {
 
 		model.preview = ""
 
+		defer func() {
+			recover()
+		}()
+
 		if !model.entry.IsDir {
 			var err error
 			fullPath := filepath.Join(model.path, model.entry.Name)
@@ -85,13 +89,13 @@ func (model EntryModel) Update(msg tea.Msg) (EntryModel, tea.Cmd) {
 			model.preview, err = model.getFilePreview(fullPath)
 
 			if err != nil {
-				panic(err)
+				return model, sendMessage(err.Error())
 			}
 
 			model.preview, err = entry.HighlightSyntax(model.entry.Name, model.preview)
 
 			if err != nil {
-				panic(err)
+				return model, sendMessage(err.Error())
 			}
 		}
 	}

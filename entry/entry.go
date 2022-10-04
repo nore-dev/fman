@@ -74,7 +74,7 @@ func GetEntry(info fs.FileInfo, path string) (Entry, error) {
 		_entries, err := os.ReadDir(path)
 
 		if err != nil {
-			return Entry{}, nil
+			return Entry{}, err
 		}
 
 		size = strconv.Itoa(len(_entries)) + " entries"
@@ -110,10 +110,14 @@ func GetEntries(path string, showHidden bool) ([]Entry, error) {
 	for _, file := range files {
 		info, err := file.Info()
 
+		if err != nil {
+			continue
+		}
+
 		fullPath := filepath.Join(path, file.Name())
 
 		if err != nil {
-			return []Entry{}, err
+			continue
 		}
 
 		hidden, err := FileHidden(file.Name())
