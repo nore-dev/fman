@@ -22,7 +22,7 @@ func GetStorageInfo() (StorageInfo, error) {
 		return info, err
 	}
 
-	_, _, err := proc.Call(uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr("."))),
+	_, _, err = proc.Call(uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr("."))),
 		uintptr(unsafe.Pointer(&info.AvailableSpace)),
 		uintptr(unsafe.Pointer(&info.TotalSpace)),
 		uintptr(unsafe.Pointer(&info.FreeSpace)))
