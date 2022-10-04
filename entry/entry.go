@@ -99,9 +99,12 @@ func GetEntry(info fs.FileInfo, path string) (Entry, error) {
 }
 
 func GetEntries(path string, showHidden bool) ([]Entry, error) {
+	os.Chdir(path)
+	newPath, _ := os.Getwd()
+
 	entries := []Entry{}
 
-	files, err := os.ReadDir(path)
+	files, err := os.ReadDir(newPath)
 
 	if err != nil {
 		return []Entry{}, err
@@ -114,7 +117,7 @@ func GetEntries(path string, showHidden bool) ([]Entry, error) {
 			continue
 		}
 
-		fullPath := filepath.Join(path, file.Name())
+		fullPath := filepath.Join(newPath, file.Name())
 
 		if err != nil {
 			continue
