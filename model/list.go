@@ -91,6 +91,24 @@ func detectOpenCommand() string {
 	return "start"
 }
 
+func changePath(path string) tea.Cmd {
+	return func() tea.Msg {
+		return PathMsg{Path: path}
+	}
+}
+
+func updateEntry(newEntry entry.Entry) tea.Cmd {
+	return func() tea.Msg {
+		return entry.EntryMsg{Entry: newEntry}
+	}
+}
+
+func sendMessage(message string) tea.Cmd {
+	return func() tea.Msg {
+		return NewMessageMsg{message}
+	}
+}
+
 func NewListModel(theme *theme.Theme) ListModel {
 
 	path, err := filepath.Abs(".")
@@ -141,35 +159,22 @@ func (list ListModel) clearLastKey() tea.Cmd {
 	})
 }
 
-func (list *ListModel) getEntriesAbove() {
-	list.path = filepath.Dir(list.path)
-	entries, err := entry.GetEntries(list.path, list.showHidden)
-
-	if err != nil {
-		panic(err)
-	}
-
-	list.entries = entries
+func (list *ListModel) getEntriesAbove() tea.Cmd {
+	return changePath(filepath.Dir(list.path))
 }
 
-func (list *ListModel) getEntriesBelow() {
+func (list *ListModel) getEntriesBelow() tea.Cmd {
 	if !list.SelectedEntry().IsDir {
-		return
+		return nil
 	}
 
-	list.path = filepath.Join(list.path, list.SelectedEntry().Name)
+	path := filepath.Join(list.path, list.SelectedEntry().Name)
 
 	if list.SelectedEntry().SymLinkPath != "" {
-		list.path = list.SelectedEntry().SymLinkPath
+		path = list.SelectedEntry().SymLinkPath
 	}
 
-	entries, err := entry.GetEntries(list.path, list.showHidden)
-
-	if err != nil {
-		panic(err)
-	}
-
-	list.entries = entries
+	return changePath(path)
 }
 
 func (list *ListModel) restrictIndex() {
@@ -197,24 +202,20 @@ func (list ListModel) Update(msg tea.Msg) (ListModel, tea.Cmd) {
 
 		list.path = msg.Path
 		list.entries, err = entry.GetEntries(list.path, list.showHidden)
-
-		if err != nil {
-			panic(err)
-		}
-
-	case UpdateEntriesMsg:
-		if msg.parent {
-			list.getEntriesAbove()
-		} else {
-			list.getEntriesBelow()
-		}
-
 		list.restrictIndex()
 
-		return list, func() tea.Msg {
-			return PathMsg{list.path}
+		// An error occured, give user a feedback
+		if err != nil {
+			return list, sendMessage(err.Error())
 		}
 
+		return list, updateEntry(list.SelectedEntry())
+	case UpdateEntriesMsg:
+		if msg.parent {
+			return list, list.getEntriesAbove()
+		}
+
+		return list, list.getEntriesBelow()
 	case ClearKeyMsg:
 		list.lastKeyCharacter = ' '
 		return list, list.clearLastKey()
@@ -236,9 +237,7 @@ func (list ListModel) Update(msg tea.Msg) (ListModel, tea.Cmd) {
 		case "~", ".": // Move to the home directory
 			homeDir, _ := os.UserHomeDir()
 
-			return list, func() tea.Msg {
-				return PathMsg{homeDir}
-			}
+			return list, changePath(homeDir)
 		case "c": // Copy path to the clipboard
 			path := getFullPath(list.SelectedEntry(), list.path)
 
@@ -250,16 +249,12 @@ func (list ListModel) Update(msg tea.Msg) (ListModel, tea.Cmd) {
 		case "w", "up", "k": // Select entry above
 			list.selected_index -= 1
 			list.restrictIndex()
-			return list, func() tea.Msg {
-				return entry.EntryMsg{Entry: list.SelectedEntry()}
-			}
-
+			return list, updateEntry(list.SelectedEntry())
 		case "s", "down", "j": // Select entry below
 			list.selected_index += 1
 			list.restrictIndex()
-			return list, func() tea.Msg {
-				return entry.EntryMsg{Entry: list.SelectedEntry()}
-			}
+
+			return list, updateEntry(list.SelectedEntry())
 		case "a", "left", "h": // Get entries from parent directory
 			return list, func() tea.Msg {
 				return UpdateEntriesMsg{parent: true}
