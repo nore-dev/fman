@@ -1,6 +1,8 @@
 package entry
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestHighlightSyntax(t *testing.T) {
 	testCases := []struct {
@@ -33,6 +35,30 @@ func TestHighlightSyntax(t *testing.T) {
 			got, _ := HighlightSyntax(tC.name, tC.preview)
 			if got != tC.expected {
 				t.Errorf("expecting %s, got %v", tC.expected, got)
+			}
+		})
+	}
+}
+
+func TestGetEntries(t *testing.T) {
+
+	testCases := []struct {
+		desc         string
+		path         string
+		expectedSize int
+	}{
+		{
+			desc:         "cur dir",
+			path:         "./",
+			expectedSize: 4,
+		},
+	}
+
+	for _, tC := range testCases {
+		t.Run(tC.desc, func(t *testing.T) {
+			entries, _ := GetEntries(tC.path, true)
+			if len(entries) != tC.expectedSize {
+				t.Errorf("expecting %d entries, got %d", tC.expectedSize, len(entries))
 			}
 		})
 	}
