@@ -12,7 +12,7 @@ type StorageInfo struct {
 func GetStorageInfo() (StorageInfo, error) {
 	info := StorageInfo{}
 
-	dll, err := syscall.MustLoadDLL("kernel32.dll")
+	dll, err := syscall.LoadDLL("kernel32.dll")
 	if err != nil {
 		return info, err
 	}
