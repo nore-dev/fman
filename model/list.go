@@ -247,14 +247,14 @@ func (list ListModel) Update(msg tea.Msg) (ListModel, tea.Cmd) {
 			return list, func() tea.Msg {
 				return NewMessageMsg{"Copied!"}
 			}
-		case "w", "up", "j": // Select entry above
+		case "w", "up", "k": // Select entry above
 			list.selected_index -= 1
 			list.restrictIndex()
 			return list, func() tea.Msg {
 				return entry.EntryMsg{Entry: list.SelectedEntry()}
 			}
 
-		case "s", "down", "k": // Select entry below
+		case "s", "down", "j": // Select entry below
 			list.selected_index += 1
 			list.restrictIndex()
 			return list, func() tea.Msg {
