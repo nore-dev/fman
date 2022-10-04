@@ -10,11 +10,19 @@ type StorageInfo struct {
 }
 
 func GetStorageInfo() (StorageInfo, error) {
-	h := syscall.MustLoadDLL("kernel32.dll")
-	c := h.MustFindProc("GetDiskFreeSpaceExW")
-
 	info := StorageInfo{}
-	_, _, err := c.Call(uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr("."))),
+
+	dll, err := syscall.MustLoadDLL("kernel32.dll")
+	if err != nil {
+		return info, err
+	}
+
+	proc, err := dll.FindProc("GetDiskFreeSpaceExW")
+	if err != nil {
+		return info, err
+	}
+
+	_, _, err := proc.Call(uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr("."))),
 		uintptr(unsafe.Pointer(&info.AvailableSpace)),
 		uintptr(unsafe.Pointer(&info.TotalSpace)),
 		uintptr(unsafe.Pointer(&info.FreeSpace)))

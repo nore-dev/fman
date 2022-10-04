@@ -18,10 +18,12 @@ func GetStorageInfo() (info StorageInfo, err error) {
 	fs := syscall.Statfs_t{}
 
 	var dir string
-	dir, _ = os.Getwd()
-	err = syscall.Statfs(dir, &fs)
-
+	dir, err = os.Getwd()
 	if err != nil {
+		return
+	}
+
+	if err = syscall.Statfs(dir, &fs); err != nil {
 		return
 	}
 
