@@ -35,10 +35,11 @@ $ go install github.com/nore-dev/fman@latest
 |    `~, .`     |        Move to the home directory         |
 ## Built With
 Without these projects this project would not have existed at all.
-- [Bubbletea]()
-- [Lipgloss]()
-- [Bubblezone]()
-- [Chroma]()
+- [Bubbletea](https://github.com/charmbracelet/bubbletea/)
+- [Lipgloss](https://github.com/charmbracelet/lipgloss)
+- [Bubblezone](https://github.com/lrstanley/bubblezone)
+- [stickers](https://github.com/76creates/stickers)
+- [Chroma](https://github.com/alecthomas/chroma)
 
 ## CONTRIBUTING
 
