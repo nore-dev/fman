@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/76creates/stickers"
+	"github.com/alexflint/go-arg"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	zone "github.com/lrstanley/bubblezone"
@@ -29,11 +30,7 @@ func (app *App) Init() tea.Cmd {
 
 func (app *App) UpdatePath() tea.Cmd {
 	return func() tea.Msg {
-		path := "."
-
-		if len(os.Args) >= 2 {
-			path = os.Args[1]
-		}
+		path := args.Path
 
 		absolutePath, _ := filepath.Abs(path)
 		return model.PathMsg{Path: absolutePath}
@@ -94,14 +91,22 @@ func (app *App) View() string {
 	))
 }
 
+// Define CLI arguments
+var args struct {
+	Path  string `arg:"positional" default:"."`
+	Theme string `default:"default"`
+}
+
 func main() {
 	// Initialize Bubblezone
 	zone.NewGlobal()
 	defer zone.Close()
 
-	selectedTheme := theme.DefaultTheme
+	arg.MustParse(&args)
 
-	theme.SetTheme(theme.DefaultTheme)
+	selectedTheme := theme.GetActiveTheme(args.Theme)
+
+	theme.SetTheme(selectedTheme)
 	listModel := model.NewListModel(&selectedTheme)
 
 	app := App{

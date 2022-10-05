@@ -21,7 +21,7 @@ $ go install github.com/nore-dev/fman@latest
 ## Keybindings
 
 |      Key      |                Description                |
-|:-------------:|:-----------------------------------------:|
+| :-----------: | :---------------------------------------: |
 |  `q, Ctrl+C`  |           Exit from application           |
 | `a, h, left`  |         Move to parent directory          |
 | `d, l, right` |        Move to selected directory         |
@@ -33,13 +33,23 @@ $ go install github.com/nore-dev/fman@latest
 |     `gg`      |     Move to the beginning of the list     |
 |      `m`      |        Toggle showing hidden Files        |
 |    `~, .`     |        Move to the home directory         |
+
+## CLI options
+
+|    Key    |   Type   |        Values        | Default value |
+| :-------: | :------: | :------------------: | :-----------: |
+| `--theme` | `string` | `darcula,brogrammer` |   `darcula`   |
+
 ## Built With
+
 Without these projects this project would not have existed at all.
+
 - [Bubbletea](https://github.com/charmbracelet/bubbletea/)
 - [Lipgloss](https://github.com/charmbracelet/lipgloss)
 - [Bubblezone](https://github.com/lrstanley/bubblezone)
 - [stickers](https://github.com/76creates/stickers)
 - [Chroma](https://github.com/alecthomas/chroma)
+- [go-arg](https://github.com/alexflint/go-arg)
 
 ## CONTRIBUTING
 
@@ -55,6 +65,7 @@ Don't forget to give the project a star! Thanks again!
 5. Open a Pull Request
 
 ## LICENSE
+
 Distributed under the MIT License. See `LICENSE` for more information.
 
 ## Acknowledgments
