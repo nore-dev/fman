@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/76creates/stickers"
 	"github.com/alexflint/go-arg"
@@ -25,6 +26,15 @@ type App struct {
 
 func (app *App) Init() tea.Cmd {
 	return tea.Batch(app.infobarModel.Init(), app.listModel.Init())
+}
+
+func (app *App) UpdatePath() tea.Cmd {
+	return func() tea.Msg {
+		path := args.Path
+
+		absolutePath, _ := filepath.Abs(path)
+		return model.PathMsg{Path: absolutePath}
+	}
 }
 
 func (app *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -83,6 +93,7 @@ func (app *App) View() string {
 
 // Define CLI arguments
 var args struct {
+	Path  string `arg:"positional" default:"."`
 	Theme string `default:"default"`
 }
 

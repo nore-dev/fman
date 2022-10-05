@@ -4,7 +4,7 @@ type ThemeMap map[string]Theme
 
 var themes = ThemeMap{
 	"default":    DefaultTheme,
-	"darcula":    DefaultTheme,
+	"dracula":    DefaultTheme,
 	"brogrammer": BrogrammerTheme,
 }
 
