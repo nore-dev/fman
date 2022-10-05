@@ -38,7 +38,7 @@ $ go install github.com/nore-dev/fman@latest
 
 |    Key    |   Type   |        Values        | Default value |
 | :-------: | :------: | :------------------: | :-----------: |
-| `--theme` | `string` | `darcula,brogrammer` |   `darcula`   |
+| `--theme` | `string` | `dracula,brogrammer` |   `dracula`   |
 
 ## Built With
 
