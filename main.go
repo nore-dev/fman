@@ -93,7 +93,7 @@ func main() {
 
 	arg.MustParse(&args)
 
-	selectedTheme := theme.Themes[args.Theme]
+	selectedTheme := theme.GetActiveTheme(args.Theme)
 
 	theme.SetTheme(selectedTheme)
 	listModel := model.NewListModel(&selectedTheme)
