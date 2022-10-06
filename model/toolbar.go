@@ -4,6 +4,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	zone "github.com/lrstanley/bubblezone"
+	"github.com/nore-dev/fman/message"
 	"github.com/nore-dev/fman/theme"
 )
 
@@ -24,7 +25,7 @@ func (toolbar ToolbarModel) Init() tea.Cmd {
 func (toolbar ToolbarModel) Update(msg tea.Msg) (ToolbarModel, tea.Cmd) {
 
 	switch msg := msg.(type) {
-	case PathMsg:
+	case message.PathMsg:
 		toolbar.path = msg.Path
 
 	case tea.MouseMsg:
@@ -34,13 +35,13 @@ func (toolbar ToolbarModel) Update(msg tea.Msg) (ToolbarModel, tea.Cmd) {
 
 		if zone.Get("forward").InBounds(msg) {
 			return toolbar, func() tea.Msg {
-				return UpdateEntriesMsg{}
+				return message.UpdateEntriesMsg{}
 			}
 		}
 
 		if zone.Get("back").InBounds(msg) {
 			return toolbar, func() tea.Msg {
-				return UpdateEntriesMsg{parent: true}
+				return message.UpdateEntriesMsg{Parent: true}
 			}
 		}
 

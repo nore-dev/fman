@@ -14,6 +14,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	zone "github.com/lrstanley/bubblezone"
 	"github.com/nore-dev/fman/entry"
+	"github.com/nore-dev/fman/message"
 	"github.com/nore-dev/fman/theme"
 )
 
@@ -33,23 +34,12 @@ type ListModel struct {
 	maxEntryToShow int
 	truncateLimit  int
 
-	initialized bool
-
 	lastClickedTime time.Time
 	clickDelay      float64
 
 	theme *theme.Theme
 
 	lastKeyCharacter byte
-}
-
-type UpdateEntriesMsg struct {
-	parent bool
-}
-type ClearKeyMsg struct {
-}
-type PathMsg struct {
-	Path string
 }
 
 func max(a, b int) int {
@@ -91,24 +81,6 @@ func detectOpenCommand() string {
 	return "start"
 }
 
-func changePath(path string) tea.Cmd {
-	return func() tea.Msg {
-		return PathMsg{Path: path}
-	}
-}
-
-func updateEntry(newEntry entry.Entry) tea.Cmd {
-	return func() tea.Msg {
-		return entry.EntryMsg{Entry: newEntry}
-	}
-}
-
-func sendMessage(message string) tea.Cmd {
-	return func() tea.Msg {
-		return NewMessageMsg{message}
-	}
-}
-
 func NewListModel(theme *theme.Theme) ListModel {
 
 	path, err := filepath.Abs(".")
@@ -128,7 +100,6 @@ func NewListModel(theme *theme.Theme) ListModel {
 		entries:       entries,
 		truncateLimit: 100,
 		flexBox:       stickers.NewFlexBox(0, 0),
-		initialized:   false,
 		clickDelay:    0.5,
 		theme:         theme,
 		showHidden:    false,
@@ -155,12 +126,12 @@ func (list ListModel) Init() tea.Cmd {
 
 func (list ListModel) clearLastKey() tea.Cmd {
 	return tea.Tick(time.Second, func(t time.Time) tea.Msg {
-		return ClearKeyMsg{}
+		return message.ClearKeyMsg{}
 	})
 }
 
 func (list *ListModel) getEntriesAbove() tea.Cmd {
-	return changePath(filepath.Dir(list.path))
+	return message.ChangePath(filepath.Dir(list.path))
 }
 
 func (list *ListModel) getEntriesBelow() tea.Cmd {
@@ -174,7 +145,7 @@ func (list *ListModel) getEntriesBelow() tea.Cmd {
 		path = list.SelectedEntry().SymLinkPath
 	}
 
-	return changePath(path)
+	return message.ChangePath(path)
 }
 
 func (list *ListModel) restrictIndex() {
@@ -197,7 +168,7 @@ func getFullPath(entry entry.Entry, path string) string {
 
 func (list ListModel) Update(msg tea.Msg) (ListModel, tea.Cmd) {
 	switch msg := msg.(type) {
-	case PathMsg:
+	case message.PathMsg:
 		var err error
 
 		list.path = msg.Path
@@ -206,26 +177,24 @@ func (list ListModel) Update(msg tea.Msg) (ListModel, tea.Cmd) {
 
 		// An error occured, give user a feedback
 		if err != nil {
-			return list, sendMessage(err.Error())
+			return list, message.SendMessage(err.Error())
 		}
 
-		return list, updateEntry(list.SelectedEntry())
-	case UpdateEntriesMsg:
-		if msg.parent {
+		return list, message.UpdateEntry(list.SelectedEntry())
+	case message.UpdateEntriesMsg:
+		if msg.Parent {
 			return list, list.getEntriesAbove()
 		}
 
 		return list, list.getEntriesBelow()
-	case ClearKeyMsg:
+	case message.ClearKeyMsg:
 		list.lastKeyCharacter = ' '
 		return list, list.clearLastKey()
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "m": // Show hidden files
 			list.showHidden = !list.showHidden
-			return list, func() tea.Msg {
-				return PathMsg{list.path}
-			}
+			return list, message.ChangePath(list.path)
 		case "g": // Move to the beginning of the list
 			if list.lastKeyCharacter == 'g' {
 				list.selected_index = 0
@@ -237,31 +206,29 @@ func (list ListModel) Update(msg tea.Msg) (ListModel, tea.Cmd) {
 		case "~", ".": // Move to the home directory
 			homeDir, _ := os.UserHomeDir()
 
-			return list, changePath(homeDir)
+			return list, message.ChangePath(homeDir)
 		case "c": // Copy path to the clipboard
 			path := getFullPath(list.SelectedEntry(), list.path)
 
 			clipboard.WriteAll(path)
 
-			return list, func() tea.Msg {
-				return NewMessageMsg{"Copied!"}
-			}
+			return list, message.SendMessage("Copied!")
 		case "w", "up", "k": // Select entry above
 			list.selected_index -= 1
 			list.restrictIndex()
-			return list, updateEntry(list.SelectedEntry())
+			return list, message.UpdateEntry(list.SelectedEntry())
 		case "s", "down", "j": // Select entry below
 			list.selected_index += 1
 			list.restrictIndex()
 
-			return list, updateEntry(list.SelectedEntry())
+			return list, message.UpdateEntry(list.SelectedEntry())
 		case "a", "left", "h": // Get entries from parent directory
 			return list, func() tea.Msg {
-				return UpdateEntriesMsg{parent: true}
+				return message.UpdateEntriesMsg{Parent: true}
 			}
 		case "d", "right", "l": // If the selected entry is a directory. Get entries under that directory
 			return list, func() tea.Msg {
-				return UpdateEntriesMsg{}
+				return message.UpdateEntriesMsg{}
 			}
 		case "enter": // Open file with default application
 			// Handle Symlink
@@ -300,32 +267,17 @@ func (list ListModel) Update(msg tea.Msg) (ListModel, tea.Cmd) {
 			list.getEntriesBelow()
 			list.restrictIndex()
 			return list, func() tea.Msg {
-				return UpdateEntriesMsg{}
+				return message.UpdateEntriesMsg{}
 			}
 		}
 
 		list.lastClickedTime = time
-		// Update entry info model
-		return list, func() tea.Msg {
-			return entry.EntryMsg{Entry: list.SelectedEntry()}
-		}
 
+		// Update entry info model
+		return list, message.UpdateEntry(list.SelectedEntry())
 	}
 
 	list.restrictIndex()
-
-	if !list.initialized {
-		list.initialized = true
-
-		return list, tea.Batch(
-			func() tea.Msg {
-				return PathMsg{list.path}
-			},
-			func() tea.Msg {
-				return entry.EntryMsg{Entry: list.SelectedEntry()}
-			},
-		)
-	}
 
 	return list, nil
 

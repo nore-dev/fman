@@ -11,6 +11,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	zone "github.com/lrstanley/bubblezone"
 
+	"github.com/nore-dev/fman/message"
 	"github.com/nore-dev/fman/model"
 	"github.com/nore-dev/fman/theme"
 )
@@ -33,7 +34,7 @@ func (app *App) UpdatePath() tea.Cmd {
 		path := args.Path
 
 		absolutePath, _ := filepath.Abs(path)
-		return model.PathMsg{Path: absolutePath}
+		return message.PathMsg{Path: absolutePath}
 	}
 }
 

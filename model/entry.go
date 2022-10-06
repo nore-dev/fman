@@ -10,6 +10,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/nore-dev/fman/entry"
+	"github.com/nore-dev/fman/message"
 )
 
 type EntryModel struct {
@@ -66,9 +67,9 @@ func (model EntryModel) getFilePreview(path string) (string, error) {
 func (model EntryModel) Update(msg tea.Msg) (EntryModel, tea.Cmd) {
 
 	switch msg := msg.(type) {
-	case PathMsg:
+	case message.PathMsg:
 		model.path = msg.Path
-	case entry.EntryMsg:
+	case message.EntryMsg:
 		model.entry = msg.Entry
 
 		model.preview = ""
@@ -89,13 +90,13 @@ func (model EntryModel) Update(msg tea.Msg) (EntryModel, tea.Cmd) {
 			model.preview, err = model.getFilePreview(fullPath)
 
 			if err != nil {
-				return model, sendMessage(err.Error())
+				return model, message.SendMessage(err.Error())
 			}
 
 			model.preview, err = entry.HighlightSyntax(model.entry.Name, model.preview)
 
 			if err != nil {
-				return model, sendMessage(err.Error())
+				return model, message.SendMessage(err.Error())
 			}
 		}
 	}

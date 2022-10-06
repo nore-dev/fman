@@ -7,6 +7,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/dustin/go-humanize"
+	"github.com/nore-dev/fman/message"
 	"github.com/nore-dev/fman/storage"
 	"github.com/nore-dev/fman/theme"
 )
@@ -18,17 +19,15 @@ type InfobarModel struct {
 	messageDuration int
 }
 
-type NewMessageMsg struct {
-	message string
-}
-
 type TickMsg time.Time
+
+const DEFAULT_MESSAGE = "--"
 
 func NewInfobarModel() InfobarModel {
 	return InfobarModel{
 		progressWidth:   20,
 		messageDuration: 2,
-		message:         "--",
+		message:         DEFAULT_MESSAGE,
 	}
 }
 
@@ -51,11 +50,11 @@ func (infobar InfobarModel) clearMessage() tea.Cmd {
 func (infobar InfobarModel) Update(msg tea.Msg) (InfobarModel, tea.Cmd) {
 
 	switch msg := msg.(type) {
-	case TickMsg:
-		infobar.message = "--"
+	case TickMsg: // Clear message
+		infobar.message = DEFAULT_MESSAGE
 		return infobar, infobar.clearMessage()
-	case NewMessageMsg:
-		infobar.message = msg.message
+	case message.NewMessageMsg: // Set new message
+		infobar.message = msg.Message
 	case tea.WindowSizeMsg:
 		infobar.width = msg.Width
 	}

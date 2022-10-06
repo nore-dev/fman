@@ -8,35 +8,32 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	zone "github.com/lrstanley/bubblezone"
+	"github.com/nore-dev/fman/message"
 	"github.com/nore-dev/fman/theme"
 )
 
 type PathModel struct {
-	id   string
 	path string
 }
 
-func NewEditableModel() PathModel {
-
-	return PathModel{
-		id: zone.NewPrefix(),
-	}
+func NewPathModel() PathModel {
+	return PathModel{}
 }
 
-func (editable PathModel) Init() tea.Cmd {
+func (pathModel PathModel) Init() tea.Cmd {
 	return nil
 }
 
-func (editable PathModel) Update(msg tea.Msg) (PathModel, tea.Cmd) {
+func (pathModel PathModel) Update(msg tea.Msg) (PathModel, tea.Cmd) {
 	switch msg := msg.(type) {
-	case PathMsg:
-		editable.path = msg.Path
+	case message.PathMsg:
+		pathModel.path = msg.Path
 	case tea.MouseMsg:
 		if msg.Type != tea.MouseLeft {
-			return editable, nil
+			return pathModel, nil
 		}
 
-		pathParts := strings.SplitAfter(editable.path, string(filepath.Separator))
+		pathParts := strings.SplitAfter(pathModel.path, string(filepath.Separator))
 
 		// Quick Path Jump
 		// Mouse Support
@@ -45,23 +42,20 @@ func (editable PathModel) Update(msg tea.Msg) (PathModel, tea.Cmd) {
 			if zone.Get(strconv.Itoa(i)).InBounds(msg) {
 				newPath := filepath.Join(pathParts[:i+1]...)
 
-				editable.path = newPath
-				return editable,
-					func() tea.Msg {
-						return PathMsg{editable.path}
-					}
+				pathModel.path = newPath
+				return pathModel, message.ChangePath(pathModel.path)
 			}
 		}
 	}
 
-	return editable, nil
+	return pathModel, nil
 }
 
-func (editable PathModel) View() string {
+func (pathModel PathModel) View() string {
 
 	strBuilder := strings.Builder{}
 
-	pathParts := strings.Split(editable.path, string(filepath.Separator))
+	pathParts := strings.Split(pathModel.path, string(filepath.Separator))
 
 	for i, part := range pathParts {
 
