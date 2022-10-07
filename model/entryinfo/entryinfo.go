@@ -1,4 +1,4 @@
-package model
+package entryinfo
 
 import (
 	"bufio"
@@ -13,7 +13,7 @@ import (
 	"github.com/nore-dev/fman/message"
 )
 
-type EntryModel struct {
+type EntryInfo struct {
 	entry         entry.Entry
 	Width         int
 	path          string
@@ -21,17 +21,17 @@ type EntryModel struct {
 	previewHeight int
 }
 
-func NewEntryModel() EntryModel {
-	return EntryModel{
+func New() EntryInfo {
+	return EntryInfo{
 		previewHeight: 10,
 	}
 }
 
-func (model EntryModel) Init() tea.Cmd {
+func (entryInfo EntryInfo) Init() tea.Cmd {
 	return nil
 }
 
-func (model EntryModel) getFilePreview(path string) (string, error) {
+func (entryInfo EntryInfo) getFilePreview(path string) (string, error) {
 	strBuilder := strings.Builder{}
 
 	f, err := os.Open(path)
@@ -44,7 +44,7 @@ func (model EntryModel) getFilePreview(path string) (string, error) {
 
 	scanner := bufio.NewScanner(f)
 
-	for i := 0; i < model.previewHeight; i++ {
+	for i := 0; i < entryInfo.previewHeight; i++ {
 		scanner.Scan()
 
 		text := strings.ReplaceAll(scanner.Text(), "\t", "")
@@ -64,46 +64,48 @@ func (model EntryModel) getFilePreview(path string) (string, error) {
 	return strBuilder.String(), nil
 }
 
-func (model EntryModel) Update(msg tea.Msg) (EntryModel, tea.Cmd) {
+func (entryInfo EntryInfo) Update(msg tea.Msg) (EntryInfo, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case message.PathMsg:
-		model.path = msg.Path
+		entryInfo.path = msg.Path
 	case message.EntryMsg:
-		model.entry = msg.Entry
+		entryInfo.entry = msg.Entry
 
-		model.preview = ""
+		entryInfo.preview = ""
 
 		defer func() {
 			recover()
 		}()
 
-		if !model.entry.IsDir {
-			var err error
-			fullPath := filepath.Join(model.path, model.entry.Name)
+		if entryInfo.entry.IsDir {
+			return entryInfo, nil
+		}
 
-			// Handle Symlink
-			if model.entry.SymLinkPath != "" {
-				fullPath = model.entry.SymLinkPath
-			}
+		var err error
+		fullPath := filepath.Join(entryInfo.path, entryInfo.entry.Name)
 
-			model.preview, err = model.getFilePreview(fullPath)
+		// Handle Symlink
+		if entryInfo.entry.SymLinkPath != "" {
+			fullPath = entryInfo.entry.SymLinkPath
+		}
 
-			if err != nil {
-				return model, message.SendMessage(err.Error())
-			}
+		entryInfo.preview, err = entryInfo.getFilePreview(fullPath)
 
-			model.preview, err = entry.HighlightSyntax(model.entry.Name, model.preview)
+		if err != nil {
+			return entryInfo, message.SendMessage(err.Error())
+		}
 
-			if err != nil {
-				return model, message.SendMessage(err.Error())
-			}
+		entryInfo.preview, err = entry.HighlightSyntax(entryInfo.entry.Name, entryInfo.preview)
+
+		if err != nil {
+			return entryInfo, message.SendMessage(err.Error())
 		}
 	}
-	return model, nil
+	return entryInfo, nil
 }
 
-func (model EntryModel) getFileInfo() string {
+func (model EntryInfo) getFileInfo() string {
 	str := strings.Builder{}
 
 	str.WriteByte('\n')
@@ -113,6 +115,10 @@ func (model EntryModel) getFileInfo() string {
 	str.WriteByte('\n')
 
 	typeStr := model.entry.Type
+
+	if typeStr == "" {
+		typeStr = "Unknown type"
+	}
 
 	if model.entry.IsDir {
 		typeStr = "Folder"
@@ -137,7 +143,7 @@ func (model EntryModel) getFileInfo() string {
 	return str.String()
 }
 
-func (model EntryModel) View() string {
+func (model EntryInfo) View() string {
 
 	return lipgloss.JoinVertical(lipgloss.Left,
 		lipgloss.NewStyle().MaxHeight(model.previewHeight).MaxWidth(model.Width-2).Render(model.preview),

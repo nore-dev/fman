@@ -45,13 +45,11 @@ func (list *List) restrictIndex() {
 }
 
 func getFullPath(entry entry.Entry, path string) string {
-	fullPath := filepath.Join(path, entry.Name)
-
 	if entry.SymLinkPath != "" {
-		fullPath = entry.SymLinkPath
+		return entry.SymLinkPath
 	}
 
-	return fullPath
+	return filepath.Join(path, entry.Name)
 }
 
 func (list *List) handlePathChange(path string) tea.Cmd {

@@ -13,13 +13,14 @@ import (
 
 	"github.com/nore-dev/fman/message"
 	"github.com/nore-dev/fman/model"
+	"github.com/nore-dev/fman/model/entryinfo"
 	"github.com/nore-dev/fman/model/list"
 	"github.com/nore-dev/fman/theme"
 )
 
 type App struct {
-	listModel    list.List
-	entryModel   model.EntryModel
+	list         list.List
+	entryInfo    entryinfo.EntryInfo
 	toolbarModel model.ToolbarModel
 	infobarModel model.InfobarModel
 
@@ -27,7 +28,7 @@ type App struct {
 }
 
 func (app *App) Init() tea.Cmd {
-	return tea.Batch(app.infobarModel.Init(), app.UpdatePath(), app.listModel.Init())
+	return tea.Batch(app.infobarModel.Init(), app.UpdatePath(), app.list.Init())
 }
 
 func (app *App) UpdatePath() tea.Cmd {
@@ -57,18 +58,18 @@ func (app *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		app.flexBox.ForceRecalculate()
 
-		app.listModel.SetWidth(app.flexBox.Row(0).Cell(0).GetWidth())
-		app.listModel.SetHeight(app.flexBox.GetHeight())
+		app.list.SetWidth(app.flexBox.Row(0).Cell(0).GetWidth())
+		app.list.SetHeight(app.flexBox.GetHeight())
 
-		app.entryModel.Width = app.flexBox.Row(0).Cell(1).GetWidth()
+		app.entryInfo.Width = app.flexBox.Row(0).Cell(1).GetWidth()
 
 	}
 
 	var listCmd, toolbarCmd, entryCmd, infobarCmd tea.Cmd
 
-	app.listModel, listCmd = app.listModel.Update(msg)
+	app.list, listCmd = app.list.Update(msg)
 	app.toolbarModel, toolbarCmd = app.toolbarModel.Update(msg)
-	app.entryModel, entryCmd = app.entryModel.Update(msg)
+	app.entryInfo, entryCmd = app.entryInfo.Update(msg)
 	app.infobarModel, infobarCmd = app.infobarModel.Update(msg)
 
 	return app, tea.Batch(listCmd, toolbarCmd, entryCmd, infobarCmd)
@@ -80,10 +81,10 @@ func (app *App) View() string {
 	row := app.flexBox.Row(0)
 
 	// Set content of list view
-	row.Cell(0).SetContent(app.listModel.View())
+	row.Cell(0).SetContent(app.list.View())
 
 	// Set content of entry view
-	row.Cell(1).SetContent(app.entryModel.View())
+	row.Cell(1).SetContent(app.entryInfo.View())
 
 	return zone.Scan(lipgloss.JoinVertical(
 		lipgloss.Top,
@@ -111,8 +112,8 @@ func main() {
 	theme.SetTheme(selectedTheme)
 
 	app := App{
-		listModel:    list.New(&selectedTheme),
-		entryModel:   model.NewEntryModel(),
+		list:         list.New(&selectedTheme),
+		entryInfo:    entryinfo.New(),
 		toolbarModel: model.NewToolbarModel(),
 		infobarModel: model.NewInfobarModel(),
 		flexBox:      stickers.NewFlexBox(0, 0),
