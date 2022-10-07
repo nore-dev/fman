@@ -13,11 +13,12 @@ import (
 
 	"github.com/nore-dev/fman/message"
 	"github.com/nore-dev/fman/model"
+	"github.com/nore-dev/fman/model/list"
 	"github.com/nore-dev/fman/theme"
 )
 
 type App struct {
-	listModel    model.ListModel
+	listModel    list.List
 	entryModel   model.EntryModel
 	toolbarModel model.ToolbarModel
 	infobarModel model.InfobarModel
@@ -56,10 +57,10 @@ func (app *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		app.flexBox.ForceRecalculate()
 
-		app.listModel.Width = app.flexBox.Row(0).Cell(0).GetWidth()
-		app.entryModel.Width = app.flexBox.Row(0).Cell(1).GetWidth()
+		app.listModel.SetWidth(app.flexBox.Row(0).Cell(0).GetWidth())
+		app.listModel.SetHeight(app.flexBox.GetHeight())
 
-		app.listModel.Height = app.flexBox.GetHeight()
+		app.entryModel.Width = app.flexBox.Row(0).Cell(1).GetWidth()
 
 	}
 
@@ -108,10 +109,9 @@ func main() {
 	selectedTheme := theme.GetActiveTheme(args.Theme)
 
 	theme.SetTheme(selectedTheme)
-	listModel := model.NewListModel(&selectedTheme)
 
 	app := App{
-		listModel:    listModel,
+		listModel:    list.New(&selectedTheme),
 		entryModel:   model.NewEntryModel(),
 		toolbarModel: model.NewToolbarModel(),
 		infobarModel: model.NewInfobarModel(),
