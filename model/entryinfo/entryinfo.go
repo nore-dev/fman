@@ -27,11 +27,11 @@ func New() EntryInfo {
 	}
 }
 
-func (entryInfo EntryInfo) Init() tea.Cmd {
+func (entryInfo *EntryInfo) Init() tea.Cmd {
 	return nil
 }
 
-func (entryInfo EntryInfo) getFilePreview(path string) (string, error) {
+func (entryInfo *EntryInfo) getFilePreview(path string) (string, error) {
 	strBuilder := strings.Builder{}
 
 	f, err := os.Open(path)
@@ -64,7 +64,7 @@ func (entryInfo EntryInfo) getFilePreview(path string) (string, error) {
 	return strBuilder.String(), nil
 }
 
-func (entryInfo EntryInfo) Update(msg tea.Msg) (EntryInfo, tea.Cmd) {
+func (entryInfo *EntryInfo) Update(msg tea.Msg) (EntryInfo, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case message.PathMsg:
@@ -79,7 +79,7 @@ func (entryInfo EntryInfo) Update(msg tea.Msg) (EntryInfo, tea.Cmd) {
 		}()
 
 		if entryInfo.entry.IsDir {
-			return entryInfo, nil
+			return *entryInfo, nil
 		}
 
 		var err error
@@ -93,34 +93,34 @@ func (entryInfo EntryInfo) Update(msg tea.Msg) (EntryInfo, tea.Cmd) {
 		entryInfo.preview, err = entryInfo.getFilePreview(fullPath)
 
 		if err != nil {
-			return entryInfo, message.SendMessage(err.Error())
+			return *entryInfo, message.SendMessage(err.Error())
 		}
 
 		entryInfo.preview, err = entry.HighlightSyntax(entryInfo.entry.Name, entryInfo.preview)
 
 		if err != nil {
-			return entryInfo, message.SendMessage(err.Error())
+			return *entryInfo, message.SendMessage(err.Error())
 		}
 	}
-	return entryInfo, nil
+	return *entryInfo, nil
 }
 
-func (model EntryInfo) getFileInfo() string {
+func (entryInfo *EntryInfo) getFileInfo() string {
 	str := strings.Builder{}
 
 	str.WriteByte('\n')
 
-	str.WriteString(model.entry.Name)
+	str.WriteString(entryInfo.entry.Name)
 
 	str.WriteByte('\n')
 
-	typeStr := model.entry.Type
+	typeStr := entryInfo.entry.Type
 
 	if typeStr == "" {
 		typeStr = "Unknown type"
 	}
 
-	if model.entry.IsDir {
+	if entryInfo.entry.IsDir {
 		typeStr = "Folder"
 	}
 
@@ -128,17 +128,17 @@ func (model EntryInfo) getFileInfo() string {
 	str.WriteByte('\n')
 
 	str.WriteString("Modified ")
-	str.WriteString(model.entry.ModifyTime)
+	str.WriteString(entryInfo.entry.ModifyTime)
 
 	str.WriteByte('\n')
 
 	str.WriteString("Changed ")
-	str.WriteString(model.entry.ChangeTime)
+	str.WriteString(entryInfo.entry.ChangeTime)
 
 	str.WriteByte('\n')
 
 	str.WriteString("Accessed ")
-	str.WriteString(model.entry.AccessTime)
+	str.WriteString(entryInfo.entry.AccessTime)
 
 	return str.String()
 }

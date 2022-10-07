@@ -14,6 +14,7 @@ import (
 	"github.com/nore-dev/fman/message"
 	"github.com/nore-dev/fman/model"
 	"github.com/nore-dev/fman/model/entryinfo"
+	"github.com/nore-dev/fman/model/infobar"
 	"github.com/nore-dev/fman/model/list"
 	"github.com/nore-dev/fman/theme"
 )
@@ -22,13 +23,13 @@ type App struct {
 	list         list.List
 	entryInfo    entryinfo.EntryInfo
 	toolbarModel model.ToolbarModel
-	infobarModel model.InfobarModel
+	infobar      infobar.Infobar
 
 	flexBox *stickers.FlexBox
 }
 
 func (app *App) Init() tea.Cmd {
-	return tea.Batch(app.infobarModel.Init(), app.UpdatePath(), app.list.Init())
+	return tea.Batch(app.infobar.Init(), app.UpdatePath(), app.list.Init())
 }
 
 func (app *App) UpdatePath() tea.Cmd {
@@ -70,7 +71,7 @@ func (app *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	app.list, listCmd = app.list.Update(msg)
 	app.toolbarModel, toolbarCmd = app.toolbarModel.Update(msg)
 	app.entryInfo, entryCmd = app.entryInfo.Update(msg)
-	app.infobarModel, infobarCmd = app.infobarModel.Update(msg)
+	app.infobar, infobarCmd = app.infobar.Update(msg)
 
 	return app, tea.Batch(listCmd, toolbarCmd, entryCmd, infobarCmd)
 }
@@ -90,7 +91,7 @@ func (app *App) View() string {
 		lipgloss.Top,
 		app.toolbarModel.View(),
 		zone.Mark("list", app.flexBox.Render()),
-		app.infobarModel.View(),
+		app.infobar.View(),
 	))
 }
 
@@ -115,7 +116,7 @@ func main() {
 		list:         list.New(&selectedTheme),
 		entryInfo:    entryinfo.New(),
 		toolbarModel: model.NewToolbarModel(),
-		infobarModel: model.NewInfobarModel(),
+		infobar:      infobar.New(),
 		flexBox:      stickers.NewFlexBox(0, 0),
 	}
 
