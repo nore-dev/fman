@@ -64,7 +64,7 @@ func (app *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		app.list.SetWidth(app.flexBox.Row(0).Cell(0).GetWidth())
 		app.list.SetHeight(app.flexBox.GetHeight())
 
-		app.entryInfo.Width = app.flexBox.Row(0).Cell(1).GetWidth()
+		app.entryInfo.SetWidth(app.flexBox.Row(0).Cell(1).GetWidth())
 
 	}
 

@@ -15,7 +15,7 @@ import (
 
 type EntryInfo struct {
 	entry         entry.Entry
-	Width         int
+	width         int
 	path          string
 	preview       string
 	previewHeight int
@@ -143,10 +143,18 @@ func (entryInfo *EntryInfo) getFileInfo() string {
 	return str.String()
 }
 
-func (model EntryInfo) View() string {
+func (entryInfo *EntryInfo) View() string {
 
 	return lipgloss.JoinVertical(lipgloss.Left,
-		lipgloss.NewStyle().MaxHeight(model.previewHeight).MaxWidth(model.Width-2).Render(model.preview),
-		model.getFileInfo())
+		lipgloss.NewStyle().MaxHeight(entryInfo.previewHeight).MaxWidth(entryInfo.width-2).Render(entryInfo.preview),
+		entryInfo.getFileInfo())
 
+}
+
+func (entryInfo *EntryInfo) Width() int {
+	return entryInfo.width
+}
+
+func (entryInfo *EntryInfo) SetWidth(width int) {
+	entryInfo.width = width
 }
