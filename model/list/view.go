@@ -43,10 +43,10 @@ func (list *List) View() string {
 
 		if entry.SymlinkName != "" {
 			content[0].WriteByte('@')
-			content[0].WriteString(strings.ReplaceAll(entry.SymlinkName, "-", "_"))
+			content[0].WriteString(strings.ReplaceAll(entry.SymlinkName, "-", "‐"))
 
 		} else {
-			content[0].WriteString(strings.ReplaceAll(name, "-", "_")) // FIXME: Temporary Solution
+			content[0].WriteString(strings.ReplaceAll(name, "-", "‐")) // FIXME: Temporary Solution
 		}
 		content[1].WriteString(entry.Size)
 		content[2].WriteString(entry.ModifyTime)
