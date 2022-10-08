@@ -1,4 +1,4 @@
-package model
+package breadcrumb
 
 import (
 	"path/filepath"
@@ -12,28 +12,28 @@ import (
 	"github.com/nore-dev/fman/theme"
 )
 
-type PathModel struct {
+type Breadcrumb struct {
 	path string
 }
 
-func NewPathModel() PathModel {
-	return PathModel{}
+func New() Breadcrumb {
+	return Breadcrumb{}
 }
 
-func (pathModel PathModel) Init() tea.Cmd {
+func (breadcrumb *Breadcrumb) Init() tea.Cmd {
 	return nil
 }
 
-func (pathModel PathModel) Update(msg tea.Msg) (PathModel, tea.Cmd) {
+func (breadcrumb *Breadcrumb) Update(msg tea.Msg) (Breadcrumb, tea.Cmd) {
 	switch msg := msg.(type) {
 	case message.PathMsg:
-		pathModel.path = msg.Path
+		breadcrumb.path = msg.Path
 	case tea.MouseMsg:
 		if msg.Type != tea.MouseLeft {
-			return pathModel, nil
+			return *breadcrumb, nil
 		}
 
-		pathParts := strings.SplitAfter(pathModel.path, string(filepath.Separator))
+		pathParts := strings.SplitAfter(breadcrumb.path, string(filepath.Separator))
 
 		// Quick Path Jump
 		// Mouse Support
@@ -42,20 +42,20 @@ func (pathModel PathModel) Update(msg tea.Msg) (PathModel, tea.Cmd) {
 			if zone.Get(strconv.Itoa(i)).InBounds(msg) {
 				newPath := filepath.Join(pathParts[:i+1]...)
 
-				pathModel.path = newPath
-				return pathModel, message.ChangePath(pathModel.path)
+				breadcrumb.path = newPath
+				return *breadcrumb, message.ChangePath(breadcrumb.path)
 			}
 		}
 	}
 
-	return pathModel, nil
+	return *breadcrumb, nil
 }
 
-func (pathModel PathModel) View() string {
+func (breadcrumb Breadcrumb) View() string {
 
 	strBuilder := strings.Builder{}
 
-	pathParts := strings.Split(pathModel.path, string(filepath.Separator))
+	pathParts := strings.Split(breadcrumb.path, string(filepath.Separator))
 
 	for i, part := range pathParts {
 

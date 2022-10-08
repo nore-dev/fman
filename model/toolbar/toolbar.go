@@ -1,28 +1,29 @@
-package model
+package toolbar
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	zone "github.com/lrstanley/bubblezone"
 	"github.com/nore-dev/fman/message"
+	"github.com/nore-dev/fman/model/breadcrumb"
 	"github.com/nore-dev/fman/theme"
 )
 
-type ToolbarModel struct {
-	path         string
-	editablePath PathModel
+type Toolbar struct {
+	path       string
+	breadcrumb breadcrumb.Breadcrumb
 }
 
-func NewToolbarModel() ToolbarModel {
-	return ToolbarModel{}
+func New() Toolbar {
+	return Toolbar{}
 }
 
-func (toolbar ToolbarModel) Init() tea.Cmd {
+func (toolbar *Toolbar) Init() tea.Cmd {
 
 	return nil
 }
 
-func (toolbar ToolbarModel) Update(msg tea.Msg) (ToolbarModel, tea.Cmd) {
+func (toolbar *Toolbar) Update(msg tea.Msg) (Toolbar, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case message.PathMsg:
@@ -30,17 +31,17 @@ func (toolbar ToolbarModel) Update(msg tea.Msg) (ToolbarModel, tea.Cmd) {
 
 	case tea.MouseMsg:
 		if msg.Type != tea.MouseLeft {
-			return toolbar, nil
+			return *toolbar, nil
 		}
 
 		if zone.Get("forward").InBounds(msg) {
-			return toolbar, func() tea.Msg {
+			return *toolbar, func() tea.Msg {
 				return message.UpdateEntriesMsg{}
 			}
 		}
 
 		if zone.Get("back").InBounds(msg) {
-			return toolbar, func() tea.Msg {
+			return *toolbar, func() tea.Msg {
 				return message.UpdateEntriesMsg{Parent: true}
 			}
 		}
@@ -48,17 +49,17 @@ func (toolbar ToolbarModel) Update(msg tea.Msg) (ToolbarModel, tea.Cmd) {
 	}
 
 	var pathCmd tea.Cmd
-	toolbar.editablePath, pathCmd = toolbar.editablePath.Update(msg)
+	toolbar.breadcrumb, pathCmd = toolbar.breadcrumb.Update(msg)
 
-	return toolbar, pathCmd
+	return *toolbar, pathCmd
 }
 
-func (toolbar ToolbarModel) View() string {
+func (toolbar *Toolbar) View() string {
 
 	view := lipgloss.JoinHorizontal(lipgloss.Left,
 		zone.Mark("back", theme.ButtonStyle.Render("←")),
 		zone.Mark("forward", theme.ButtonStyle.Render("→")),
 	)
 
-	return lipgloss.JoinHorizontal(lipgloss.Center, view, toolbar.editablePath.View())
+	return lipgloss.JoinHorizontal(lipgloss.Center, view, toolbar.breadcrumb.View())
 }

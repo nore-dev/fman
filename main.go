@@ -12,18 +12,20 @@ import (
 	zone "github.com/lrstanley/bubblezone"
 
 	"github.com/nore-dev/fman/message"
-	"github.com/nore-dev/fman/model"
+
 	"github.com/nore-dev/fman/model/entryinfo"
 	"github.com/nore-dev/fman/model/infobar"
 	"github.com/nore-dev/fman/model/list"
+	"github.com/nore-dev/fman/model/toolbar"
+
 	"github.com/nore-dev/fman/theme"
 )
 
 type App struct {
-	list         list.List
-	entryInfo    entryinfo.EntryInfo
-	toolbarModel model.ToolbarModel
-	infobar      infobar.Infobar
+	list      list.List
+	entryInfo entryinfo.EntryInfo
+	toolbar   toolbar.Toolbar
+	infobar   infobar.Infobar
 
 	flexBox *stickers.FlexBox
 }
@@ -54,7 +56,7 @@ func (app *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 	case tea.WindowSizeMsg:
-		app.flexBox.SetHeight(msg.Height - lipgloss.Height(app.toolbarModel.View()) - lipgloss.Height(app.toolbarModel.View()))
+		app.flexBox.SetHeight(msg.Height - lipgloss.Height(app.toolbar.View()) - lipgloss.Height(app.toolbar.View()))
 		app.flexBox.SetWidth(msg.Width)
 
 		app.flexBox.ForceRecalculate()
@@ -69,7 +71,7 @@ func (app *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var listCmd, toolbarCmd, entryCmd, infobarCmd tea.Cmd
 
 	app.list, listCmd = app.list.Update(msg)
-	app.toolbarModel, toolbarCmd = app.toolbarModel.Update(msg)
+	app.toolbar, toolbarCmd = app.toolbar.Update(msg)
 	app.entryInfo, entryCmd = app.entryInfo.Update(msg)
 	app.infobar, infobarCmd = app.infobar.Update(msg)
 
@@ -89,7 +91,7 @@ func (app *App) View() string {
 
 	return zone.Scan(lipgloss.JoinVertical(
 		lipgloss.Top,
-		app.toolbarModel.View(),
+		app.toolbar.View(),
 		zone.Mark("list", app.flexBox.Render()),
 		app.infobar.View(),
 	))
@@ -113,11 +115,11 @@ func main() {
 	theme.SetTheme(selectedTheme)
 
 	app := App{
-		list:         list.New(&selectedTheme),
-		entryInfo:    entryinfo.New(),
-		toolbarModel: model.NewToolbarModel(),
-		infobar:      infobar.New(),
-		flexBox:      stickers.NewFlexBox(0, 0),
+		list:      list.New(&selectedTheme),
+		entryInfo: entryinfo.New(),
+		toolbar:   toolbar.New(),
+		infobar:   infobar.New(),
+		flexBox:   stickers.NewFlexBox(0, 0),
 	}
 
 	rows := []*stickers.FlexBoxRow{
