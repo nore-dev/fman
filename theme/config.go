@@ -6,6 +6,7 @@ var themes = ThemeMap{
 	"default":    DefaultTheme,
 	"dracula":    DefaultTheme,
 	"brogrammer": BrogrammerTheme,
+	"catppuccin": CatppuccinTheme,
 }
 
 // Tries to match provided flag value for --theme against
