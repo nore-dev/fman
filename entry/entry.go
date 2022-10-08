@@ -29,10 +29,6 @@ type Entry struct {
 	SymLinkPath string
 }
 
-type EntryMsg struct {
-	Entry Entry
-}
-
 func HighlightSyntax(name string, preview string) (string, error) {
 	var buffer bytes.Buffer
 

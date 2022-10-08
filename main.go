@@ -11,21 +11,27 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	zone "github.com/lrstanley/bubblezone"
 
-	"github.com/nore-dev/fman/model"
+	"github.com/nore-dev/fman/message"
+
+	"github.com/nore-dev/fman/model/entryinfo"
+	"github.com/nore-dev/fman/model/infobar"
+	"github.com/nore-dev/fman/model/list"
+	"github.com/nore-dev/fman/model/toolbar"
+
 	"github.com/nore-dev/fman/theme"
 )
 
 type App struct {
-	listModel    model.ListModel
-	entryModel   model.EntryModel
-	toolbarModel model.ToolbarModel
-	infobarModel model.InfobarModel
+	list      list.List
+	entryInfo entryinfo.EntryInfo
+	toolbar   toolbar.Toolbar
+	infobar   infobar.Infobar
 
 	flexBox *stickers.FlexBox
 }
 
 func (app *App) Init() tea.Cmd {
-	return tea.Batch(app.infobarModel.Init(), app.UpdatePath(), app.listModel.Init())
+	return tea.Batch(app.infobar.Init(), app.UpdatePath(), app.list.Init())
 }
 
 func (app *App) UpdatePath() tea.Cmd {
@@ -33,7 +39,7 @@ func (app *App) UpdatePath() tea.Cmd {
 		path := args.Path
 
 		absolutePath, _ := filepath.Abs(path)
-		return model.PathMsg{Path: absolutePath}
+		return message.PathMsg{Path: absolutePath}
 	}
 }
 
@@ -50,24 +56,24 @@ func (app *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 	case tea.WindowSizeMsg:
-		app.flexBox.SetHeight(msg.Height - lipgloss.Height(app.toolbarModel.View()) - lipgloss.Height(app.toolbarModel.View()))
+		app.flexBox.SetHeight(msg.Height - lipgloss.Height(app.toolbar.View()) - lipgloss.Height(app.toolbar.View()))
 		app.flexBox.SetWidth(msg.Width)
 
 		app.flexBox.ForceRecalculate()
 
-		app.listModel.Width = app.flexBox.Row(0).Cell(0).GetWidth()
-		app.entryModel.Width = app.flexBox.Row(0).Cell(1).GetWidth()
+		app.list.SetWidth(app.flexBox.Row(0).Cell(0).GetWidth())
+		app.list.SetHeight(app.flexBox.GetHeight())
 
-		app.listModel.Height = app.flexBox.GetHeight()
+		app.entryInfo.SetWidth(app.flexBox.Row(0).Cell(1).GetWidth())
 
 	}
 
 	var listCmd, toolbarCmd, entryCmd, infobarCmd tea.Cmd
 
-	app.listModel, listCmd = app.listModel.Update(msg)
-	app.toolbarModel, toolbarCmd = app.toolbarModel.Update(msg)
-	app.entryModel, entryCmd = app.entryModel.Update(msg)
-	app.infobarModel, infobarCmd = app.infobarModel.Update(msg)
+	app.list, listCmd = app.list.Update(msg)
+	app.toolbar, toolbarCmd = app.toolbar.Update(msg)
+	app.entryInfo, entryCmd = app.entryInfo.Update(msg)
+	app.infobar, infobarCmd = app.infobar.Update(msg)
 
 	return app, tea.Batch(listCmd, toolbarCmd, entryCmd, infobarCmd)
 }
@@ -78,16 +84,16 @@ func (app *App) View() string {
 	row := app.flexBox.Row(0)
 
 	// Set content of list view
-	row.Cell(0).SetContent(app.listModel.View())
+	row.Cell(0).SetContent(app.list.View())
 
 	// Set content of entry view
-	row.Cell(1).SetContent(app.entryModel.View())
+	row.Cell(1).SetContent(app.entryInfo.View())
 
 	return zone.Scan(lipgloss.JoinVertical(
 		lipgloss.Top,
-		app.toolbarModel.View(),
+		app.toolbar.View(),
 		zone.Mark("list", app.flexBox.Render()),
-		app.infobarModel.View(),
+		app.infobar.View(),
 	))
 }
 
@@ -107,14 +113,13 @@ func main() {
 	selectedTheme := theme.GetActiveTheme(args.Theme)
 
 	theme.SetTheme(selectedTheme)
-	listModel := model.NewListModel(&selectedTheme)
 
 	app := App{
-		listModel:    listModel,
-		entryModel:   model.NewEntryModel(),
-		toolbarModel: model.NewToolbarModel(),
-		infobarModel: model.NewInfobarModel(),
-		flexBox:      stickers.NewFlexBox(0, 0),
+		list:      list.New(&selectedTheme),
+		entryInfo: entryinfo.New(),
+		toolbar:   toolbar.New(),
+		infobar:   infobar.New(),
+		flexBox:   stickers.NewFlexBox(0, 0),
 	}
 
 	rows := []*stickers.FlexBoxRow{

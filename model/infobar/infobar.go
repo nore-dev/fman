@@ -1,4 +1,4 @@
-package model
+package infobar
 
 import (
 	"strings"
@@ -7,40 +7,39 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/dustin/go-humanize"
+	"github.com/nore-dev/fman/message"
 	"github.com/nore-dev/fman/storage"
 	"github.com/nore-dev/fman/theme"
 )
 
-type InfobarModel struct {
+type Infobar struct {
 	width           int
 	progressWidth   int
 	message         string
 	messageDuration int
 }
 
-type NewMessageMsg struct {
-	message string
-}
-
 type TickMsg time.Time
 
-func NewInfobarModel() InfobarModel {
-	return InfobarModel{
+const DEFAULT_MESSAGE = "--"
+
+func New() Infobar {
+	return Infobar{
 		progressWidth:   20,
 		messageDuration: 2,
-		message:         "--",
+		message:         DEFAULT_MESSAGE,
 	}
 }
 
-func (infobar InfobarModel) Init() tea.Cmd {
+func (infobar Infobar) Init() tea.Cmd {
 	return infobar.clearMessage()
 }
 
-func (infobar InfobarModel) Message() string {
+func (infobar Infobar) Message() string {
 	return infobar.message
 }
 
-func (infobar InfobarModel) clearMessage() tea.Cmd {
+func (infobar Infobar) clearMessage() tea.Cmd {
 	duration := time.Second * time.Duration(infobar.messageDuration)
 
 	return tea.Tick(duration, func(t time.Time) tea.Msg {
@@ -48,14 +47,14 @@ func (infobar InfobarModel) clearMessage() tea.Cmd {
 	})
 }
 
-func (infobar InfobarModel) Update(msg tea.Msg) (InfobarModel, tea.Cmd) {
+func (infobar Infobar) Update(msg tea.Msg) (Infobar, tea.Cmd) {
 
 	switch msg := msg.(type) {
-	case TickMsg:
-		infobar.message = "--"
+	case TickMsg: // Clear message
+		infobar.message = DEFAULT_MESSAGE
 		return infobar, infobar.clearMessage()
-	case NewMessageMsg:
-		infobar.message = msg.message
+	case message.NewMessageMsg: // Set new message
+		infobar.message = msg.Message
 	case tea.WindowSizeMsg:
 		infobar.width = msg.Width
 	}
@@ -69,7 +68,7 @@ func renderProgress(width int, usedSpace uint64, totalSpace uint64) string {
 	return theme.ProgressStyle.Width(width).Render(usedStr)
 }
 
-func (infobar InfobarModel) View() string {
+func (infobar Infobar) View() string {
 
 	logo := theme.LogoStyle.Render("FMAN")
 	info, _ := storage.GetStorageInfo()

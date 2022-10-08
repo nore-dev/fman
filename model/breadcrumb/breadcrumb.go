@@ -1,4 +1,4 @@
-package model
+package breadcrumb
 
 import (
 	"path/filepath"
@@ -8,35 +8,32 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	zone "github.com/lrstanley/bubblezone"
+	"github.com/nore-dev/fman/message"
 	"github.com/nore-dev/fman/theme"
 )
 
-type PathModel struct {
-	id   string
+type Breadcrumb struct {
 	path string
 }
 
-func NewEditableModel() PathModel {
-
-	return PathModel{
-		id: zone.NewPrefix(),
-	}
+func New() Breadcrumb {
+	return Breadcrumb{}
 }
 
-func (editable PathModel) Init() tea.Cmd {
+func (breadcrumb *Breadcrumb) Init() tea.Cmd {
 	return nil
 }
 
-func (editable PathModel) Update(msg tea.Msg) (PathModel, tea.Cmd) {
+func (breadcrumb *Breadcrumb) Update(msg tea.Msg) (Breadcrumb, tea.Cmd) {
 	switch msg := msg.(type) {
-	case PathMsg:
-		editable.path = msg.Path
+	case message.PathMsg:
+		breadcrumb.path = msg.Path
 	case tea.MouseMsg:
 		if msg.Type != tea.MouseLeft {
-			return editable, nil
+			return *breadcrumb, nil
 		}
 
-		pathParts := strings.SplitAfter(editable.path, string(filepath.Separator))
+		pathParts := strings.SplitAfter(breadcrumb.path, string(filepath.Separator))
 
 		// Quick Path Jump
 		// Mouse Support
@@ -45,23 +42,20 @@ func (editable PathModel) Update(msg tea.Msg) (PathModel, tea.Cmd) {
 			if zone.Get(strconv.Itoa(i)).InBounds(msg) {
 				newPath := filepath.Join(pathParts[:i+1]...)
 
-				editable.path = newPath
-				return editable,
-					func() tea.Msg {
-						return PathMsg{editable.path}
-					}
+				breadcrumb.path = newPath
+				return *breadcrumb, message.ChangePath(breadcrumb.path)
 			}
 		}
 	}
 
-	return editable, nil
+	return *breadcrumb, nil
 }
 
-func (editable PathModel) View() string {
+func (breadcrumb Breadcrumb) View() string {
 
 	strBuilder := strings.Builder{}
 
-	pathParts := strings.Split(editable.path, string(filepath.Separator))
+	pathParts := strings.Split(breadcrumb.path, string(filepath.Separator))
 
 	for i, part := range pathParts {
 
