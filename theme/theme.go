@@ -30,6 +30,9 @@ type Theme struct {
 	FolderColor lipgloss.Color
 
 	TextColor lipgloss.Color
+
+	InfobarBgColor lipgloss.Color
+	InfobarFgColor lipgloss.Color
 }
 
 func SetTheme(theme Theme) {
@@ -55,4 +58,6 @@ func SetTheme(theme Theme) {
 	ProgressStyle.Foreground(theme.ProgressBarFgColor)
 	ProgressStyle.BorderForeground(theme.ProgressBarBgColor)
 
+	InfobarStyle.Background(theme.InfobarBgColor)
+	InfobarStyle.Foreground(theme.InfobarFgColor)
 }

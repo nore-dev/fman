@@ -75,12 +75,14 @@ func (infobar Infobar) View() string {
 
 	progress := renderProgress(infobar.progressWidth, info.AvailableSpace, info.TotalSpace)
 
-	leftView := lipgloss.JoinHorizontal(lipgloss.Center, logo, " ", infobar.Message())
-	rightView := lipgloss.JoinHorizontal(lipgloss.Center, progress, " ", humanize.IBytes(info.AvailableSpace), "/", humanize.IBytes(info.TotalSpace))
+	style := theme.InfobarStyle
+	usedSpace := lipgloss.JoinHorizontal(lipgloss.Center, " ", humanize.IBytes(info.AvailableSpace), "/", humanize.IBytes(info.TotalSpace))
 
 	return lipgloss.JoinHorizontal(
 		lipgloss.Center,
-		leftView,
-		lipgloss.PlaceHorizontal(infobar.width-lipgloss.Width(leftView), lipgloss.Right, rightView),
+		logo,
+		style.Width(infobar.width-(lipgloss.Width(progress)+lipgloss.Width(usedSpace)+lipgloss.Width(logo)+1)).Render(" "+infobar.Message()),
+		progress,
+		style.Render(usedSpace),
 	)
 }

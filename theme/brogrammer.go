@@ -15,9 +15,6 @@ var BrogrammerTheme = Theme{
 	PathElementFgColor:       lipgloss.Color("#f8f8f2"),
 	PathElementBorderFgColor: lipgloss.Color("#aaa"),
 
-	ListBgColor: lipgloss.Color("#1a1a1a"),
-	ListFgColor: lipgloss.Color("#ecf0f1"),
-
 	LogoBgColor: lipgloss.Color("#f1fa8c"),
 	LogoFgColor: lipgloss.Color("#282a36"),
 
@@ -28,4 +25,7 @@ var BrogrammerTheme = Theme{
 	HiddenFolderColor: lipgloss.Color("#bd93f9"),
 	FolderColor:       lipgloss.Color("#ffb86c"),
 	TextColor:         lipgloss.Color("#ddd"),
+
+	InfobarBgColor: lipgloss.Color("#646a7a"),
+	InfobarFgColor: lipgloss.Color("#f5e0dc"),
 }
