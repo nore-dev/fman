@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -10,6 +9,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	zone "github.com/lrstanley/bubblezone"
+	"github.com/muesli/termenv"
 
 	"github.com/nore-dev/fman/message"
 
@@ -126,17 +126,31 @@ func main() {
 		app.flexBox.NewRow().AddCells(
 			[]*stickers.FlexBoxCell{
 				stickers.NewFlexBoxCell(7, 1).SetStyle(theme.ListStyle),      // List
-				stickers.NewFlexBoxCell(3, 1).SetStyle(theme.ContainerStyle), // Entry Information
+				stickers.NewFlexBoxCell(3, 1).SetStyle(theme.EntryInfoStyle), // Entry Information
 			},
 		),
 	}
+
+	bg := termenv.BackgroundColor()
+
+	// Set Background Color
+	termenv.SetBackgroundColor(termenv.RGBColor(lipgloss.Color(selectedTheme.BackgroundColor)))
+
+	// Reset background color to default
+	defer func() {
+		termenv.SetBackgroundColor(bg)
+	}()
 
 	app.flexBox.AddRows(rows)
 
 	p := tea.NewProgram(&app, tea.WithAltScreen(), tea.WithMouseAllMotion())
 
 	if err := p.Start(); err != nil {
-		fmt.Printf("Alas, there's been an error: %v", err)
+		termenv.SetBackgroundColor(bg)
+
+		println("An error occured")
+		println(err)
+
 		os.Exit(1)
 	}
 }

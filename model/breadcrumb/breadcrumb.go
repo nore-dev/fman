@@ -66,9 +66,9 @@ func (breadcrumb Breadcrumb) View() string {
 		strBuilder.WriteString(theme.PathStyle.Render(zone.Mark(strconv.Itoa(i), part)))
 
 		if i != len(pathParts)-1 {
-			strBuilder.WriteString(" > ")
+			strBuilder.WriteString(theme.ArrowStyle.Render(" > "))
 		}
 	}
 
-	return lipgloss.NewStyle().Width(100).Render(lipgloss.NewStyle().MarginLeft(2).Render(strBuilder.String()))
+	return lipgloss.NewStyle().MarginLeft(2).Render(strBuilder.String())
 }
