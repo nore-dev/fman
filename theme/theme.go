@@ -33,6 +33,12 @@ type Theme struct {
 
 	InfobarBgColor lipgloss.Color
 	InfobarFgColor lipgloss.Color
+
+	BackgroundColor lipgloss.Color
+
+	SeparatorColor lipgloss.Color
+
+	ArrowColor lipgloss.Color
 }
 
 func SetTheme(theme Theme) {
@@ -60,4 +66,8 @@ func SetTheme(theme Theme) {
 
 	InfobarStyle.Background(theme.InfobarBgColor)
 	InfobarStyle.Foreground(theme.InfobarFgColor)
+
+	EntryInfoStyle.BorderForeground(theme.SeparatorColor)
+
+	ArrowStyle.Foreground(theme.ArrowColor)
 }

@@ -28,4 +28,10 @@ var BrogrammerTheme = Theme{
 
 	InfobarBgColor: lipgloss.Color("#646a7a"),
 	InfobarFgColor: lipgloss.Color("#f5e0dc"),
+
+	BackgroundColor: lipgloss.Color("#282a36"),
+
+	SeparatorColor: lipgloss.Color("44475a"),
+
+	ArrowColor: lipgloss.Color("#44475a"),
 }

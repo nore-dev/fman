@@ -28,4 +28,10 @@ var CatppuccinTheme = Theme{
 
 	InfobarBgColor: lipgloss.Color("#4c4f69"),
 	InfobarFgColor: lipgloss.Color("#f5e0dc"),
+
+	BackgroundColor: lipgloss.Color("#232634"),
+
+	SeparatorColor: lipgloss.Color("#4c4f69"),
+
+	ArrowColor: lipgloss.Color("#8caaee"),
 }
