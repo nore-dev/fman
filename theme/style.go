@@ -4,8 +4,6 @@ import "github.com/charmbracelet/lipgloss"
 
 var EntryInfoStyle = lipgloss.NewStyle().Padding(1).Border(lipgloss.DoubleBorder(), false, true)
 
-var BoldStyle = lipgloss.NewStyle().Bold(true)
-
 var ListStyle = lipgloss.NewStyle().Padding(1)
 
 var AppStyle = lipgloss.NewStyle().Align(lipgloss.Center)
