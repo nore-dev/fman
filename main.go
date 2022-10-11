@@ -99,9 +99,8 @@ func (app *App) View() string {
 
 // Define CLI arguments
 var args struct {
-	Path    string `arg:"positional" default:"."`
-	Theme   string `default:"default"`
-	NoIcons bool   `arg:"--no-icons" default:"false"`
+	Path  string `arg:"positional" default:"."`
+	Theme string `default:"default"`
 }
 
 func main() {
