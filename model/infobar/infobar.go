@@ -70,7 +70,7 @@ func renderProgress(width int, usedSpace uint64, totalSpace uint64) string {
 
 func (infobar Infobar) View() string {
 
-	logo := theme.LogoStyle.Render("FMAN")
+	logo := theme.LogoStyle.Render(string(theme.GopherIcon) + "FMAN")
 	info, _ := storage.GetStorageInfo()
 
 	progress := renderProgress(infobar.progressWidth, info.AvailableSpace, info.TotalSpace)

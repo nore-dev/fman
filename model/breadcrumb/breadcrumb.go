@@ -66,7 +66,7 @@ func (breadcrumb Breadcrumb) View() string {
 		strBuilder.WriteString(theme.PathStyle.Render(zone.Mark(strconv.Itoa(i), part)))
 
 		if i != len(pathParts)-1 {
-			strBuilder.WriteString(theme.ArrowStyle.Render(" > "))
+			strBuilder.WriteString(theme.ArrowStyle.Render(string(theme.BreadcrumbArrowIcon)))
 		}
 	}
 

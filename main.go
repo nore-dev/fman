@@ -99,8 +99,9 @@ func (app *App) View() string {
 
 // Define CLI arguments
 var args struct {
-	Path  string `arg:"positional" default:"."`
-	Theme string `default:"default"`
+	Path    string `arg:"positional" default:"."`
+	Theme   string `default:"default"`
+	NoIcons bool   `arg:"--no-icons" default:"false"`
 }
 
 func main() {
@@ -110,6 +111,9 @@ func main() {
 
 	arg.MustParse(&args)
 
+	if args.NoIcons {
+		panic("x")
+	}
 	selectedTheme := theme.GetActiveTheme(args.Theme)
 
 	theme.SetTheme(selectedTheme)

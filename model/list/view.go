@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/muesli/termenv"
 	"github.com/nore-dev/fman/theme"
 )
 
@@ -18,13 +19,16 @@ func (list *List) View() string {
 	contents := make([]strings.Builder, cellsLength)
 
 	// Write List headers
-	contents[0].WriteString(theme.BoldStyle.Render("Name"))
+	contents[0].WriteRune(theme.NameIcon)
+	contents[0].WriteString(termenv.String(" Name").Italic().String())
 	contents[0].WriteByte('\n')
 
-	contents[1].WriteString(theme.BoldStyle.Render("Size"))
+	contents[1].WriteRune(theme.SizeIcon)
+	contents[1].WriteString(termenv.String(" Size").Italic().String())
 	contents[1].WriteByte('\n')
 
-	contents[2].WriteString(theme.BoldStyle.Render("Modify Time"))
+	contents[2].WriteRune(theme.TimeIcon)
+	contents[2].WriteString(termenv.String(" Modify Time").Italic().String())
 	contents[2].WriteByte('\n')
 
 	startIndex := max(0, list.selected_index-list.maxEntryToShow)
@@ -39,15 +43,18 @@ func (list *List) View() string {
 		entry := list.entries[index]
 		content := make([]strings.Builder, cellsLength)
 
-		name := truncateText(entry.Name, list.truncateLimit)
+		name := truncateText(entry.Name, list.truncateLimit-2)
 
 		if entry.SymlinkName != "" {
-			content[0].WriteByte('@')
-			content[0].WriteString(strings.ReplaceAll(entry.SymlinkName, "-", "‐"))
-
+			content[0].WriteRune(theme.SymlinkIcon)
+		} else if entry.IsDir {
+			content[0].WriteRune(theme.FolderIcon)
 		} else {
-			content[0].WriteString(strings.ReplaceAll(name, "-", "‐")) // FIXME: Temporary Solution
+			content[0].WriteRune(theme.FileIcon)
 		}
+
+		content[0].WriteRune(' ')
+		content[0].WriteString(strings.ReplaceAll(name, "-", "‐"))
 		content[1].WriteString(entry.Size)
 		content[2].WriteString(entry.ModifyTime)
 
