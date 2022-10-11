@@ -110,9 +110,6 @@ func main() {
 
 	arg.MustParse(&args)
 
-	if args.NoIcons {
-		panic("x")
-	}
 	selectedTheme := theme.GetActiveTheme(args.Theme)
 
 	theme.SetTheme(selectedTheme)
