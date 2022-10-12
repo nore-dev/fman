@@ -65,6 +65,7 @@ func (app *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		app.list.SetHeight(app.flexBox.GetHeight())
 
 		app.entryInfo.SetWidth(app.flexBox.Row(0).Cell(1).GetWidth())
+		app.entryInfo.SetHeight(app.flexBox.GetHeight())
 
 	}
 
@@ -116,7 +117,7 @@ func main() {
 
 	app := App{
 		list:      list.New(&selectedTheme),
-		entryInfo: entryinfo.New(),
+		entryInfo: entryinfo.New(&selectedTheme),
 		toolbar:   toolbar.New(),
 		infobar:   infobar.New(),
 		flexBox:   stickers.NewFlexBox(0, 0),
@@ -149,7 +150,7 @@ func main() {
 		termenv.SetBackgroundColor(bg)
 
 		println("An error occured")
-		println(err)
+		println(err.Error())
 
 		os.Exit(1)
 	}

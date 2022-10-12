@@ -17,6 +17,7 @@ type Infobar struct {
 	progressWidth   int
 	message         string
 	messageDuration int
+	storageInfo     storage.StorageInfo
 }
 
 type TickMsg time.Time
@@ -24,10 +25,19 @@ type TickMsg time.Time
 const DEFAULT_MESSAGE = "--"
 
 func New() Infobar {
+
+	info, err := storage.GetStorageInfo()
+
+	if err != nil {
+		println("An error occurred")
+		println(err.Error())
+	}
+
 	return Infobar{
 		progressWidth:   20,
 		messageDuration: 2,
 		message:         DEFAULT_MESSAGE,
+		storageInfo:     info,
 	}
 }
 
@@ -70,8 +80,8 @@ func renderProgress(width int, usedSpace uint64, totalSpace uint64) string {
 
 func (infobar Infobar) View() string {
 
+	info := infobar.storageInfo
 	logo := theme.LogoStyle.Render(string(theme.GopherIcon) + "FMAN")
-	info, _ := storage.GetStorageInfo()
 
 	progress := renderProgress(infobar.progressWidth, info.AvailableSpace, info.TotalSpace)
 

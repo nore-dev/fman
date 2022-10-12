@@ -12,6 +12,7 @@ require (
 	github.com/djherbis/times v1.5.0
 	github.com/dustin/go-humanize v1.0.0
 	github.com/lrstanley/bubblezone v0.0.0-20220822192435-2c9a0c7b4737
+	github.com/muesli/reflow v0.3.0
 	github.com/muesli/termenv v0.12.0
 )
 
@@ -25,7 +26,6 @@ require (
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/muesli/ansi v0.0.0-20211031195517-c9f0611b6c70 // indirect
 	github.com/muesli/cancelreader v0.2.2 // indirect
-	github.com/muesli/reflow v0.3.0 // indirect
 	github.com/rivo/uniseg v0.3.4 // indirect
 	golang.org/x/sys v0.0.0-20220829200755-d48e67d00261 // indirect
 	golang.org/x/term v0.0.0-20220722155259-a9ba230a4035 // indirect
