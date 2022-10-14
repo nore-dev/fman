@@ -98,13 +98,13 @@ func GetEntries(path string, showHidden bool) ([]Entry, error) {
 	os.Chdir(path)
 	newPath, _ := os.Getwd()
 
-	entries := []Entry{}
-
 	files, err := os.ReadDir(newPath)
 
 	if err != nil {
 		return []Entry{}, err
 	}
+
+	entries := make([]Entry, 0, len(files))
 
 	for _, file := range files {
 		info, err := file.Info()

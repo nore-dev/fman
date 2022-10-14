@@ -46,13 +46,11 @@ func max(a, b int) int {
 func truncateText(str string, max int) string {
 	// "hello world" -> "hello wo..."
 
-	_str := str
-
 	if len(str) > max {
-		_str = str[:max-3] + "..."
+		return str[:max-3] + "..."
 	}
 
-	return _str
+	return str
 }
 
 func detectOpenCommand() string {
