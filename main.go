@@ -5,12 +5,12 @@ import (
 	"path/filepath"
 
 	"github.com/76creates/stickers"
-	"github.com/alexflint/go-arg"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	zone "github.com/lrstanley/bubblezone"
 	"github.com/muesli/termenv"
 
+	"github.com/nore-dev/fman/args"
 	"github.com/nore-dev/fman/message"
 
 	"github.com/nore-dev/fman/model/entryinfo"
@@ -36,7 +36,7 @@ func (app *App) Init() tea.Cmd {
 
 func (app *App) UpdatePath() tea.Cmd {
 	return func() tea.Msg {
-		path := args.Path
+		path := args.CommandLine.Path
 
 		absolutePath, _ := filepath.Abs(path)
 		return message.PathMsg{Path: absolutePath}
@@ -98,20 +98,13 @@ func (app *App) View() string {
 	))
 }
 
-// Define CLI arguments
-var args struct {
-	Path  string `arg:"positional" default:"."`
-	Theme string `default:"default"`
-}
-
 func main() {
 	// Initialize Bubblezone
 	zone.NewGlobal()
 	defer zone.Close()
 
-	arg.MustParse(&args)
-
-	selectedTheme := theme.GetActiveTheme(args.Theme)
+	args.Initialize()
+	selectedTheme := theme.GetActiveTheme(args.CommandLine.Theme)
 
 	theme.SetTheme(selectedTheme)
 

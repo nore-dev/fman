@@ -55,10 +55,9 @@ func (toolbar *Toolbar) Update(msg tea.Msg) (Toolbar, tea.Cmd) {
 }
 
 func (toolbar *Toolbar) View() string {
-
 	view := lipgloss.JoinHorizontal(lipgloss.Left,
-		zone.Mark("back", theme.ButtonStyle.Render(string(theme.LeftArrowIcon))),
-		zone.Mark("forward", theme.ButtonStyle.Render(string(theme.RightArrowIcon))),
+		zone.Mark("back", theme.ButtonStyle.Render(string(theme.GetActiveIconTheme().LeftArrowIcon))),
+		zone.Mark("forward", theme.ButtonStyle.Render(string(theme.GetActiveIconTheme().RightArrowIcon))),
 	)
 
 	return lipgloss.JoinHorizontal(lipgloss.Center, view, toolbar.breadcrumb.View())
