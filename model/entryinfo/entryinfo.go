@@ -155,11 +155,11 @@ func (entryInfo *EntryInfo) getFileInfo() string {
 			Width(lipgloss.Width(typeStr) + 2*padding + 2).
 			Foreground(entryInfo.theme.BackgroundColor)
 
-		icon := theme.FileIcon
+		icon := theme.GetActiveIconTheme().FileIcon
 
 		if entryInfo.entry.IsDir {
 			style.Background(entryInfo.theme.FolderColor)
-			icon = theme.FolderIcon
+			icon = theme.GetActiveIconTheme().FolderIcon
 		} else {
 			style.Background(entryInfo.theme.HiddenFileColor)
 		}

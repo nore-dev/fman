@@ -19,15 +19,15 @@ func (list *List) View() string {
 	contents := make([]strings.Builder, cellsLength)
 
 	// Write List headers
-	contents[0].WriteRune(theme.NameIcon)
+	contents[0].WriteRune(theme.GetActiveIconTheme().NameIcon)
 	contents[0].WriteString(termenv.String(" Name").Italic().String())
 	contents[0].WriteByte('\n')
 
-	contents[1].WriteRune(theme.SizeIcon)
+	contents[1].WriteRune(theme.GetActiveIconTheme().SizeIcon)
 	contents[1].WriteString(termenv.String(" Size").Italic().String())
 	contents[1].WriteByte('\n')
 
-	contents[2].WriteRune(theme.TimeIcon)
+	contents[2].WriteRune(theme.GetActiveIconTheme().TimeIcon)
 	contents[2].WriteString(termenv.String(" Modify Time").Italic().String())
 	contents[2].WriteByte('\n')
 
@@ -46,11 +46,11 @@ func (list *List) View() string {
 		name := truncateText(entry.Name, list.truncateLimit-2)
 
 		if entry.SymlinkName != "" {
-			content[0].WriteRune(theme.SymlinkIcon)
+			content[0].WriteRune(theme.GetActiveIconTheme().SymlinkIcon)
 		} else if entry.IsDir {
-			content[0].WriteRune(theme.FolderIcon)
+			content[0].WriteRune(theme.GetActiveIconTheme().FolderIcon)
 		} else {
-			content[0].WriteRune(theme.FileIcon)
+			content[0].WriteRune(theme.GetActiveIconTheme().FileIcon)
 		}
 
 		content[0].WriteRune(' ')

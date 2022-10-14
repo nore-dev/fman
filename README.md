@@ -50,9 +50,10 @@ $ go install github.com/nore-dev/fman@latest
 
 ## :computer: CLI options
 
-|    Key    |   Type   |        Values        | Default value |
-| :-------: | :------: | :------------------: | :-----------: |
-| `--theme` | `string` | `dracula,brogrammer` |   `dracula`   |
+|        Key        |   Type   |        Values         | Default value |
+| :---------------: | :------: | :-------------------: | :-----------: |
+|     `--theme`     | `string` | `dracula,brogrammer`  |   `dracula`   |
+| `--icons` | `string` | `nerdfont,emoji,none` |  `nerdfont`   |
 
 ## :heart: Built With
 
