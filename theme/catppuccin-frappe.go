@@ -2,7 +2,7 @@ package theme
 
 import "github.com/charmbracelet/lipgloss"
 
-var CatppuccinTheme = Theme{
+var CatppuccinThemeFrappe = Theme{
 	EvenItemBgColor: lipgloss.Color("#303446"),
 
 	SelectedItemBgColor: lipgloss.Color("#8caaee"),
@@ -19,19 +19,19 @@ var CatppuccinTheme = Theme{
 	LogoFgColor: lipgloss.Color("#282a36"),
 
 	ProgressBarBgColor: lipgloss.Color("#303446"),
-	ProgressBarFgColor: lipgloss.Color("#dd7878"),
+	ProgressBarFgColor: lipgloss.Color("#eebebe"),
 
 	HiddenFileColor:   lipgloss.Color("#ca9ee6"),
-	HiddenFolderColor: lipgloss.Color("#04a5e5"),
+	HiddenFolderColor: lipgloss.Color("#99d1db"),
 	FolderColor:       lipgloss.Color("#e5c890"),
 	TextColor:         lipgloss.Color("#99d1db"),
 
-	InfobarBgColor: lipgloss.Color("#4c4f69"),
-	InfobarFgColor: lipgloss.Color("#f5e0dc"),
+	InfobarBgColor: lipgloss.Color("#c6d0f5"),
+	InfobarFgColor: lipgloss.Color("#f2d5cf"),
 
 	BackgroundColor: lipgloss.Color("#232634"),
 
-	SeparatorColor: lipgloss.Color("#4c4f69"),
+	SeparatorColor: lipgloss.Color("#c6d0f5"),
 
 	ArrowColor: lipgloss.Color("#8caaee"),
 }

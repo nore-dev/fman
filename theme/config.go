@@ -6,7 +6,10 @@ var themes = ThemeMap{
 	"default":    DefaultTheme,
 	"dracula":    DefaultTheme,
 	"brogrammer": BrogrammerTheme,
-	"catppuccin": CatppuccinTheme,
+	"catppuccin-mocha": CatppuccinThemeMocha,
+	"catppuccin-macchiato": CatppuccinThemeMacchiato,
+	"catppuccin-frappe": CatppuccinThemeFrappe,
+	"catppuccin-latte": CatppuccinThemeLatte,
 	"gruvbox":    GruvboxTheme,
 	"nord":       NordTheme,
 }
