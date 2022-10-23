@@ -13,6 +13,7 @@ import (
 	"github.com/nore-dev/fman/args"
 	"github.com/nore-dev/fman/message"
 
+	"github.com/nore-dev/fman/model/dialog"
 	"github.com/nore-dev/fman/model/entryinfo"
 	"github.com/nore-dev/fman/model/infobar"
 	"github.com/nore-dev/fman/model/list"
@@ -26,6 +27,10 @@ type App struct {
 	entryInfo entryinfo.EntryInfo
 	toolbar   toolbar.Toolbar
 	infobar   infobar.Infobar
+	dialog    dialog.Model
+
+	width  int
+	height int
 
 	flexBox *stickers.FlexBox
 }
@@ -44,20 +49,20 @@ func (app *App) UpdatePath() tea.Cmd {
 }
 
 func (app *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-
 	switch msg := msg.(type) {
 
 	case tea.KeyMsg:
 
 		switch msg.String() {
-
 		case "ctrl+c", "q":
 			return app, tea.Quit
 		}
-
 	case tea.WindowSizeMsg:
 		app.flexBox.SetHeight(msg.Height - lipgloss.Height(app.toolbar.View()) - lipgloss.Height(app.toolbar.View()))
 		app.flexBox.SetWidth(msg.Width)
+
+		app.width = msg.Width
+		app.height = msg.Height
 
 		app.flexBox.ForceRecalculate()
 
@@ -67,6 +72,9 @@ func (app *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		app.entryInfo.SetWidth(app.flexBox.Row(0).Cell(1).GetWidth())
 		app.entryInfo.SetHeight(app.flexBox.GetHeight())
 
+	case message.UpdateDialogMsg:
+		app.dialog.SetDialog(&msg.Dialog)
+		return app, nil
 	}
 
 	var listCmd, toolbarCmd, entryCmd, infobarCmd tea.Cmd
@@ -89,6 +97,17 @@ func (app *App) View() string {
 
 	// Set content of entry view
 	row.Cell(1).SetContent(app.entryInfo.View())
+
+	// Render the dialog if it is open
+	if app.dialog.Dialog().IsOpen() {
+		return zone.Scan(lipgloss.Place(
+			app.width,
+			app.height,
+			lipgloss.Center,
+			lipgloss.Center,
+			app.dialog.View(),
+		))
+	}
 
 	return zone.Scan(lipgloss.JoinVertical(
 		lipgloss.Top,
@@ -113,6 +132,7 @@ func main() {
 		entryInfo: entryinfo.New(&selectedTheme),
 		toolbar:   toolbar.New(),
 		infobar:   infobar.New(),
+		dialog:    dialog.New(),
 		flexBox:   stickers.NewFlexBox(0, 0),
 	}
 
