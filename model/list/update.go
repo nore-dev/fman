@@ -110,7 +110,8 @@ func (list *List) resizeList() {
 }
 
 func (list *List) openEditor(path string) tea.Cmd {
-	fallBackEditor := "nano"
+	const fallBackEditor = "nano"
+
 	editor := os.Getenv("EDITOR")
 
 	if editor == "" {
@@ -121,14 +122,17 @@ func (list *List) openEditor(path string) tea.Cmd {
 
 	return tea.ExecProcess(cmd, func(err error) tea.Msg {
 		if err == nil {
-			return nil
+			return tea.EnableMouseCellMotion
 		}
 
 		// Failed to open editor, open with default app instead
 		cmd := exec.Command(detectOpenCommand(), path)
 		cmd.Start()
 
-		return message.SendMessage(err.Error())
+		return tea.Batch(
+			message.SendMessage(err.Error()),
+			tea.EnableMouseCellMotion,
+		)
 	})
 
 }
