@@ -1,9 +1,12 @@
 package list
 
 import (
+	"bufio"
+	"os"
 	"path/filepath"
 	"runtime"
 	"time"
+	"unicode/utf8"
 
 	"github.com/76creates/stickers"
 	tea "github.com/charmbracelet/bubbletea"
@@ -51,6 +54,21 @@ func truncateText(str string, max int) string {
 	}
 
 	return str
+}
+
+func isFileReadable(path string) bool {
+	file, err := os.Open(path)
+
+	if err != nil {
+		return false
+	}
+
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+
+	scanner.Scan()
+	return utf8.ValidString(scanner.Text())
 }
 
 func detectOpenCommand() string {

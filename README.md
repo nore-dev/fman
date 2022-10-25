@@ -23,6 +23,8 @@
 - Copy Path to Clipboard
 > More on the way!!
 
+> NOTE: If you want to edit your files in the terminal you must set the `EDITOR` environment variable to your favorite editor. Example: ```vim, nvim, emacs...```
+
 ## :zap: Installation
 ### Pre-built Binaries
 You can install pre-built binaries on the [releases](https://github.com/nore-dev/fman/releases) page

@@ -109,6 +109,34 @@ func (list *List) resizeList() {
 	list.maxEntryToShow = list.height * 3 / 4
 }
 
+func (list *List) openEditor(path string) tea.Cmd {
+	const fallBackEditor = "nano"
+
+	editor := os.Getenv("EDITOR")
+
+	if editor == "" {
+		editor = fallBackEditor
+	}
+
+	cmd := exec.Command(editor, path)
+
+	return tea.ExecProcess(cmd, func(err error) tea.Msg {
+		if err == nil {
+			return tea.EnableMouseCellMotion
+		}
+
+		// Failed to open editor, open with default app instead
+		cmd := exec.Command(detectOpenCommand(), path)
+		cmd.Start()
+
+		return tea.Batch(
+			message.SendMessage(err.Error()),
+			tea.EnableMouseCellMotion,
+		)
+	})
+
+}
+
 func (list *List) Update(msg tea.Msg) (List, tea.Cmd) {
 	switch msg := msg.(type) {
 	case message.PathMsg:
@@ -163,9 +191,16 @@ func (list *List) Update(msg tea.Msg) (List, tea.Cmd) {
 				return message.UpdateEntriesMsg{}
 			}
 		case "enter": // Open file with default application
-			// Handle Symlink
-			cmd := exec.Command(detectOpenCommand(), getFullPath(list.SelectedEntry(), list.path))
-			cmd.Run()
+			path := getFullPath(list.SelectedEntry(), list.path)
+
+			// If the file can be readable open the default editor for editing
+			if !list.SelectedEntry().IsDir && isFileReadable(path) {
+				return *list, list.openEditor(path)
+			}
+
+			cmd := exec.Command(detectOpenCommand(), path)
+			cmd.Start()
+			return *list, nil
 		}
 
 	case tea.WindowSizeMsg:
