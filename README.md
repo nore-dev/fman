@@ -73,7 +73,7 @@ Without these projects this project would not have existed at all.
 |:-------------------------:|:-------------------------:|
 |<img width="1604" alt="dracula" src="./assets/dracula.png">  dracula  |<img width="1604" alt="catppuccin" src="./assets/catppuccin.png">  catppuccin |
 |<img width="1604" alt="nord" src="./assets/nord.png">  nord | <img width="1604" alt="gruvbox" src="./assets/gruvbox.png">  gruvbox ||
-| <img width="1604" alt="brogrammer" src="./assets/brogrammer.png"> brogrammer |
+| <img width="1604" alt="brogrammer" src="./assets/brogrammer.png"> brogrammer | <img width="1604" alt="everblush" src="./assets/everblush.png"> everblush|
                           
 
 ## :busts_in_silhouette: CONTRIBUTING
