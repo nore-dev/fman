@@ -3,15 +3,16 @@ package theme
 type ThemeMap map[string]Theme
 
 var themes = ThemeMap{
-	"default":    DefaultTheme,
-	"dracula":    DefaultTheme,
-	"brogrammer": BrogrammerTheme,
-	"catppuccin-mocha": CatppuccinThemeMocha,
+	"default":              DefaultTheme,
+	"dracula":              DefaultTheme,
+	"brogrammer":           BrogrammerTheme,
+	"catppuccin-mocha":     CatppuccinThemeMocha,
 	"catppuccin-macchiato": CatppuccinThemeMacchiato,
-	"catppuccin-frappe": CatppuccinThemeFrappe,
-	"catppuccin-latte": CatppuccinThemeLatte,
-	"gruvbox":    GruvboxTheme,
-	"nord":       NordTheme,
+	"catppuccin-frappe":    CatppuccinThemeFrappe,
+	"catppuccin-latte":     CatppuccinThemeLatte,
+	"gruvbox":              GruvboxTheme,
+	"nord":                 NordTheme,
+	"everblush":            EverblushTheme,
 }
 
 // Tries to match provided flag value for --theme against
