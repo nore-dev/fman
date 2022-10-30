@@ -153,8 +153,8 @@ func main() {
 	rows := []*stickers.FlexBoxRow{
 		app.flexBox.NewRow().AddCells(
 			[]*stickers.FlexBoxCell{
-				stickers.NewFlexBoxCell(7, 1).SetStyle(theme.ListStyle),      // List
-				stickers.NewFlexBoxCell(3, 1).SetStyle(theme.EntryInfoStyle), // Entry Information
+				stickers.NewFlexBoxCell(7, 1).SetStyle(theme.ListStyle), // List
+				stickers.NewFlexBoxCell(3, 1),                           // Entry Information
 			},
 		),
 	}

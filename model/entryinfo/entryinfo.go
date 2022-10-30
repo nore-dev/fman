@@ -2,6 +2,7 @@ package entryinfo
 
 import (
 	"bufio"
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -15,8 +16,6 @@ import (
 	"github.com/nore-dev/fman/message"
 	"github.com/nore-dev/fman/theme"
 )
-
-const dummyText = "Purr humans,humans, humans oh how much they love us felines we are the center of attention they feed, they clean relentlessly pursues moth spill litter box, scratch at owner, destroy all furniture, especially couch. Intently sniff hand has closed eyes but still sees you. Attack like a vicious monster ignore the human until she needs to get up, then climb on her lap and sprawl just going to dip my paw in your coffee and do a taste test - oh never mind i forgot i don't like coffee - you can have that back now. Sit in a box for hours hate dogs taco cat backwards spells taco cat shove bum in owner's face like camera lens. Pet right here, no not there, here, no fool, right here that other cat smells funny you should really give me all the treats because i smell the best and omg you finally got the right spot and i love you right now wack the mini furry mouse so walk on keyboard yet pushed the mug off the table, yet scoot butt on the rug yet meow all night having their mate disturbing sleeping humans. Am in trouble, roll over, too cute for human to get mad fish i must find my red catnip fishy fish, and pushes butt to face yet meow and walk away but to pet a cat, rub its belly, endure blood and agony, quietly weep, keep rubbing belly sleep in the bathroom sink hate dog. Jump on counter removed by human jump on counter again removed by human meow before jumping on counter this time to let the human know am coming back cat mojo . Lick human with sandpaper tongue run in circles. The door is opening! how exciting oh, it's you, meh nya nya nyan but human is behind a closed door, emergency! abandoned! meeooowwww!!! and eat the rubberband run outside as soon as door open crusty butthole leave buried treasure in the sandbox for the toddlers. Put toy mouse in food bowl run out of litter box at full speed playing with balls of wool for intently stare at the same spot rub face on owner. Sleep kitty poochy."
 
 type EntryInfo struct {
 	entry entry.Entry
@@ -34,7 +33,7 @@ type EntryInfo struct {
 
 const margin = 2
 
-var dummyTextStyle = lipgloss.NewStyle().Width(0)
+var previewStyle = lipgloss.NewStyle()
 
 func New(theme *theme.Theme) EntryInfo {
 	return EntryInfo{
@@ -55,7 +54,7 @@ func (entryInfo *EntryInfo) getFilePreview(path string) (string, error) {
 	f, err := os.Open(path)
 
 	if err != nil {
-		return dummyTextStyle.Render(dummyText), err
+		return "", err
 	}
 
 	defer f.Close()
@@ -72,11 +71,11 @@ func (entryInfo *EntryInfo) getFilePreview(path string) (string, error) {
 	}
 
 	if !utf8.ValidString(strBuilder.String()) {
-		return dummyTextStyle.Render(dummyText), err
+		return "", errors.New("unable to show preview")
 	}
 
 	if err := scanner.Err(); err != nil {
-		return dummyTextStyle.Render(dummyText), err
+		return "", err
 	}
 
 	return strBuilder.String(), nil
@@ -90,8 +89,7 @@ func (entryInfo *EntryInfo) Update(msg tea.Msg) (EntryInfo, tea.Cmd) {
 	case message.EntryMsg:
 		entryInfo.entry = msg.Entry
 
-		dummyTextStyle.Width(entryInfo.width - margin).Foreground(entryInfo.theme.InfobarBgColor)
-		entryInfo.preview = dummyTextStyle.Render(dummyText)
+		entryInfo.preview = entryInfo.renderNoPreview("Directory")
 
 		defer func() {
 			recover()
@@ -101,7 +99,6 @@ func (entryInfo *EntryInfo) Update(msg tea.Msg) (EntryInfo, tea.Cmd) {
 			return *entryInfo, nil
 		}
 
-		var err error
 		fullPath := filepath.Join(entryInfo.path, entryInfo.entry.Name)
 
 		// Handle Symlink
@@ -109,21 +106,24 @@ func (entryInfo *EntryInfo) Update(msg tea.Msg) (EntryInfo, tea.Cmd) {
 			fullPath = entryInfo.entry.SymLinkPath
 		}
 
-		entryInfo.preview, err = entryInfo.getFilePreview(fullPath)
+		preview, err := entryInfo.getFilePreview(fullPath)
 
 		if err != nil {
-			entryInfo.preview = ""
+			entryInfo.preview = entryInfo.renderNoPreview("Unreadable Content")
 
 			return *entryInfo, message.SendMessage(err.Error())
 		}
 
-		entryInfo.preview, err = entry.HighlightSyntax(entryInfo.entry.Name, entryInfo.preview)
+		preview, err = entry.HighlightSyntax(entryInfo.entry.Name, preview)
 
 		if err != nil {
-			entryInfo.preview = "d"
+			entryInfo.preview = entryInfo.renderNoPreview("Failed to highlight syntax")
 			return *entryInfo, message.SendMessage(err.Error())
 		}
+
+		entryInfo.preview = preview
 	}
+
 	return *entryInfo, nil
 }
 
@@ -193,13 +193,13 @@ func (entryInfo *EntryInfo) View() string {
 
 	entryInfo.previewHeight = entryInfo.height - lipgloss.Height(fileInfo)
 
-	return lipgloss.JoinVertical(lipgloss.Left,
-		lipgloss.NewStyle().
+	return theme.EntryInfoStyle.Render(lipgloss.JoinVertical(lipgloss.Left,
+		previewStyle.
 			MaxHeight(entryInfo.previewHeight-margin).
 			Height(entryInfo.previewHeight-margin).
 			Width(entryInfo.width-margin).
 			MaxWidth(entryInfo.width-margin).Render(entryInfo.preview),
-		fileInfo)
+		fileInfo))
 }
 
 func (entryInfo *EntryInfo) Width() int {
@@ -216,4 +216,16 @@ func (entryInfo *EntryInfo) Height() int {
 
 func (entryInfo *EntryInfo) SetHeight(height int) {
 	entryInfo.height = height
+}
+
+func (entryInfo *EntryInfo) renderNoPreview(text string) string {
+	return lipgloss.Place(
+		entryInfo.width-2,
+		entryInfo.previewHeight,
+		lipgloss.Center,
+		lipgloss.Center,
+		text,
+		lipgloss.WithWhitespaceChars("."),
+		lipgloss.WithWhitespaceForeground(theme.EvenItemStyle.GetBackground()),
+	)
 }

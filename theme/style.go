@@ -3,7 +3,7 @@ package theme
 import "github.com/charmbracelet/lipgloss"
 
 var (
-	EntryInfoStyle = lipgloss.NewStyle().Padding(1).Border(lipgloss.DoubleBorder(), false, true)
+	EntryInfoStyle = lipgloss.NewStyle().Border(lipgloss.RoundedBorder())
 	ListStyle      = lipgloss.NewStyle().Padding(1)
 
 	AppStyle = lipgloss.NewStyle().Align(lipgloss.Center)
