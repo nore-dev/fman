@@ -1,0 +1,30 @@
+{
+  "name": "@nore-dev/fman",
+  "version": "1.20.0",
+  "description": "Awesome TUI File Manager",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nore-dev/fman.git"
+  },
+  "keywords": [
+    "tui"
+  ],
+  "author": "nore-dev",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nore-dev/fman/issues"
+  },
+  "homepage": "https://github.com/nore-dev/fman#readme",
+  "dependencies": {
+    "go-npm": "^0.1.9"
+  },
+  "scripts": {
+    "postinstall": "go-npm install",
+    "preuninstall": "go-npm uninstall"
+  },
+  "goBinary": {
+    "name": "fman",
+    "path": "./bin",
+    "url": "https://github.com/nore-dev/fman/releases/download/v{{version}}/fman_{{version}}_{{platform}}_{{arch}}.tar.gz"
+  }
+}

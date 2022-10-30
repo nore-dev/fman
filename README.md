@@ -33,7 +33,10 @@ You can install pre-built binaries on the [releases](https://github.com/nore-dev
 ```
 $ go install github.com/nore-dev/fman@latest
 ```
-
+### NPM
+```
+$ npm i @nore-dev/fman
+```
 ## :keyboard: Keybindings
 
 |      Key      |                Description                |
