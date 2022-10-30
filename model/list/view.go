@@ -11,10 +11,6 @@ import (
 func (list *List) View() string {
 	list.flexBox.ForceRecalculate()
 
-	if len(list.entries) == 0 {
-		return "Empty"
-	}
-
 	cellsLength := list.flexBox.Row(0).CellsLen()
 	contents := make([]strings.Builder, cellsLength)
 
