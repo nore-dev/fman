@@ -13,7 +13,6 @@ builds:
       - linux
       - windows
       - darwin
-      - freebsd
 
 checksum:
   name_template: 'checksums.txt'
