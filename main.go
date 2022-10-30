@@ -109,10 +109,24 @@ func (app *App) View() string {
 		))
 	}
 
+	view := zone.Mark("list", app.flexBox.Render())
+
+	if app.list.IsEmpty() {
+		view = lipgloss.Place(
+			app.flexBox.GetWidth(),
+			app.flexBox.GetHeight(),
+			lipgloss.Center,
+			lipgloss.Center,
+			theme.EmptyFolderStyle.Render("This folder is empty"),
+			lipgloss.WithWhitespaceChars("."),
+			lipgloss.WithWhitespaceForeground(app.list.Theme().EvenItemBgColor),
+		)
+	}
+
 	return zone.Scan(lipgloss.JoinVertical(
 		lipgloss.Top,
 		app.toolbar.View(),
-		zone.Mark("list", app.flexBox.Render()),
+		view,
 		app.infobar.View(),
 	))
 }

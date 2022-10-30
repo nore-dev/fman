@@ -153,3 +153,7 @@ func (list *List) Height() int {
 func (list *List) SetHeight(height int) {
 	list.height = height
 }
+
+func (list *List) IsEmpty() bool {
+	return len(list.entries) == 0
+}
