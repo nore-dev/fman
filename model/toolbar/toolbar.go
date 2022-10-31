@@ -12,6 +12,8 @@ import (
 type Toolbar struct {
 	path       string
 	breadcrumb breadcrumb.Breadcrumb
+
+	previousPath string
 }
 
 func New() Toolbar {
@@ -27,6 +29,7 @@ func (toolbar *Toolbar) Update(msg tea.Msg) (Toolbar, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case message.PathMsg:
+		toolbar.previousPath = toolbar.path
 		toolbar.path = msg.Path
 
 	case tea.MouseMsg:
@@ -46,6 +49,10 @@ func (toolbar *Toolbar) Update(msg tea.Msg) (Toolbar, tea.Cmd) {
 			}
 		}
 
+		if zone.Get("history").InBounds(msg) && toolbar.previousPath != "" {
+			return *toolbar, message.ChangePath(toolbar.previousPath)
+		}
+
 	}
 
 	var pathCmd tea.Cmd
@@ -58,6 +65,7 @@ func (toolbar *Toolbar) View() string {
 	view := lipgloss.JoinHorizontal(lipgloss.Left,
 		zone.Mark("back", theme.ButtonStyle.Render(string(theme.GetActiveIconTheme().LeftArrowIcon))),
 		zone.Mark("forward", theme.ButtonStyle.Render(string(theme.GetActiveIconTheme().RightArrowIcon))),
+		zone.Mark("history", theme.ButtonStyle.Render(string(theme.GetActiveIconTheme().UpArrowIcon))),
 	)
 
 	return lipgloss.JoinHorizontal(lipgloss.Center, view, toolbar.breadcrumb.View())
