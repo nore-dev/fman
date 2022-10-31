@@ -14,6 +14,9 @@ type KeyMap struct {
 	GoToParentDirectory   key.Binding
 	GoToSelectedDirectory key.Binding
 
+	ScrollPreviewDown key.Binding
+	ScrollPreviewUp   key.Binding
+
 	CopyToClipboard key.Binding
 
 	OpenFile key.Binding
@@ -64,6 +67,14 @@ var Default = KeyMap{
 		key.WithKeys("m"),
 		key.WithHelp("m", "Show hidden entries"),
 	),
+	ScrollPreviewDown: key.NewBinding(
+		key.WithKeys("shift+down"),
+		key.WithHelp("shift+↓", "Scroll preview down"),
+	),
+	ScrollPreviewUp: key.NewBinding(
+		key.WithKeys("shift+up"),
+		key.WithHelp("shift+↑", "Scroll preview up"),
+	),
 	ToggleHelp: key.NewBinding(
 		key.WithKeys("?"),
 	),
@@ -75,7 +86,7 @@ func (k KeyMap) ShortHelp() []key.Binding {
 
 func (k KeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
-		{k.MoveCursorUp, k.MoveCursorDown},
+		{k.MoveCursorUp, k.MoveCursorDown, k.ScrollPreviewUp, k.ScrollPreviewDown},
 		{k.GoToTop, k.GoToBottom},
 		{k.GoToHomeDirectory, k.GoToParentDirectory, k.GoToSelectedDirectory},
 		{k.OpenFile, k.ShowHiddenEntries, k.CopyToClipboard},

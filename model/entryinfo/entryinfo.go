@@ -8,11 +8,13 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/muesli/reflow/truncate"
 	"github.com/muesli/termenv"
 	"github.com/nore-dev/fman/entry"
+	"github.com/nore-dev/fman/keymap"
 	"github.com/nore-dev/fman/message"
 	"github.com/nore-dev/fman/theme"
 )
@@ -27,6 +29,7 @@ type EntryInfo struct {
 	preview string
 
 	previewHeight int
+	previewOffset int
 
 	theme *theme.Theme
 }
@@ -61,8 +64,11 @@ func (entryInfo *EntryInfo) getFilePreview(path string) (string, error) {
 
 	scanner := bufio.NewScanner(f)
 
-	for i := 0; i < entryInfo.previewHeight; i++ {
+	for i := 0; i < entryInfo.previewHeight+entryInfo.previewOffset; i++ {
 		scanner.Scan()
+		if i < entryInfo.previewOffset {
+			continue
+		}
 
 		text := strings.ReplaceAll(scanner.Text(), "\t", "")
 
@@ -81,13 +87,51 @@ func (entryInfo *EntryInfo) getFilePreview(path string) (string, error) {
 	return strBuilder.String(), nil
 }
 
+func (entryInfo *EntryInfo) getFullPath() string {
+	if entryInfo.entry.SymLinkPath != "" {
+		return entryInfo.entry.SymLinkPath
+	}
+
+	return filepath.Join(entryInfo.path, entryInfo.entry.Name)
+}
+func (entryInfo *EntryInfo) handlePreview() tea.Cmd {
+	preview, err := entryInfo.getFilePreview(entryInfo.getFullPath())
+
+	if err != nil {
+		entryInfo.preview = entryInfo.renderNoPreview("Unreadable Content")
+
+		return message.SendMessage(err.Error())
+	}
+
+	preview, err = entry.HighlightSyntax(entryInfo.entry.Name, preview)
+
+	if err != nil {
+		entryInfo.preview = entryInfo.renderNoPreview("Failed to highlight syntax")
+		return message.SendMessage(err.Error())
+	}
+
+	entryInfo.preview = preview
+	return nil
+}
+
 func (entryInfo *EntryInfo) Update(msg tea.Msg) (EntryInfo, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case message.PathMsg:
 		entryInfo.path = msg.Path
+	case tea.KeyMsg:
+		if key.Matches(msg, keymap.Default.ScrollPreviewDown) {
+			entryInfo.previewOffset += 1
+			return *entryInfo, entryInfo.handlePreview()
+		}
+		if key.Matches(msg, keymap.Default.ScrollPreviewUp) && entryInfo.previewOffset > 0 {
+			entryInfo.previewOffset -= 1
+			return *entryInfo, entryInfo.handlePreview()
+		}
+
 	case message.EntryMsg:
 		entryInfo.entry = msg.Entry
+		entryInfo.previewOffset = 0
 
 		entryInfo.preview = entryInfo.renderNoPreview("Directory")
 
@@ -99,29 +143,7 @@ func (entryInfo *EntryInfo) Update(msg tea.Msg) (EntryInfo, tea.Cmd) {
 			return *entryInfo, nil
 		}
 
-		fullPath := filepath.Join(entryInfo.path, entryInfo.entry.Name)
-
-		// Handle Symlink
-		if entryInfo.entry.SymLinkPath != "" {
-			fullPath = entryInfo.entry.SymLinkPath
-		}
-
-		preview, err := entryInfo.getFilePreview(fullPath)
-
-		if err != nil {
-			entryInfo.preview = entryInfo.renderNoPreview("Unreadable Content")
-
-			return *entryInfo, message.SendMessage(err.Error())
-		}
-
-		preview, err = entry.HighlightSyntax(entryInfo.entry.Name, preview)
-
-		if err != nil {
-			entryInfo.preview = entryInfo.renderNoPreview("Failed to highlight syntax")
-			return *entryInfo, message.SendMessage(err.Error())
-		}
-
-		entryInfo.preview = preview
+		return *entryInfo, entryInfo.handlePreview()
 	}
 
 	return *entryInfo, nil
