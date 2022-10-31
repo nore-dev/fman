@@ -40,10 +40,10 @@ var Default = KeyMap{
 		key.WithKeys("~", "."),
 	),
 	GoToParentDirectory: key.NewBinding(
-		key.WithKeys("w", "k", "left"),
+		key.WithKeys("a", "h", "left"),
 	),
 	GoToSelectedDirectory: key.NewBinding(
-		key.WithKeys("s", "j", "right"),
+		key.WithKeys("d", "l", "right"),
 	),
 	CopyToClipboard: key.NewBinding(
 		key.WithKeys("c"),
