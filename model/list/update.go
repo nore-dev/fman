@@ -22,10 +22,12 @@ func (list *List) clearLastKey() tea.Cmd {
 }
 
 func (list *List) getEntriesAbove() tea.Cmd {
+	list.lastDirectory = filepath.Base(list.path)
 	return message.ChangePath(filepath.Dir(list.path))
 }
 
 func (list *List) getEntriesBelow() tea.Cmd {
+	list.lastDirectory = ""
 	if !list.SelectedEntry().IsDir {
 		return nil
 	}
@@ -59,6 +61,16 @@ func (list *List) handlePathChange(path string) tea.Cmd {
 
 	list.path = path
 	list.entries, err = entry.GetEntries(list.path, list.showHidden)
+
+	// Remember the last directory
+	if list.lastDirectory != "" {
+		for i, entry := range list.entries {
+			if entry.Name == list.lastDirectory && entry.IsDir {
+				list.selected_index = i
+			}
+		}
+	}
+
 	list.restrictIndex()
 
 	// An error occured, give user a feedback
