@@ -36,6 +36,8 @@ type List struct {
 	theme *theme.Theme
 
 	lastKeyCharacter byte
+
+	lastDirectory string
 }
 
 func max(a, b int) int {
