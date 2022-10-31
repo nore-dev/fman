@@ -7,9 +7,11 @@ import (
 	"time"
 
 	"github.com/atotto/clipboard"
+	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	zone "github.com/lrstanley/bubblezone"
 	"github.com/nore-dev/fman/entry"
+	"github.com/nore-dev/fman/keymap"
 	"github.com/nore-dev/fman/message"
 )
 
@@ -151,46 +153,43 @@ func (list *List) Update(msg tea.Msg) (List, tea.Cmd) {
 		list.lastKeyCharacter = ' '
 		return *list, list.clearLastKey()
 	case tea.KeyMsg:
-		switch msg.String() {
-		case "m": // Show hidden files
+		switch {
+		case key.Matches(msg, keymap.Default.ShowHiddenEntries): // Show hidden files
 			list.showHidden = !list.showHidden
 			return *list, message.ChangePath(list.path)
-		case "g": // Move to the beginning of the list
-			if list.lastKeyCharacter == 'g' {
-				list.selected_index = 0
-			}
-			list.lastKeyCharacter = 'g'
-		case "G": // Move to the end of the list
+		case key.Matches(msg, keymap.Default.GoToTop): // Move to the beginning of the list
+			list.selected_index = 0
+		case key.Matches(msg, keymap.Default.GoToBottom): // Move to the end of the list
 			list.selected_index = len(list.entries) - 1
 
-		case "~", ".": // Move to the home directory
+		case key.Matches(msg, keymap.Default.GoToHomeDirectory): // Move to the home directory
 			homeDir, _ := os.UserHomeDir()
 
 			return *list, message.ChangePath(homeDir)
-		case "c": // Copy path to the clipboard
+		case key.Matches(msg, keymap.Default.CopyToClipboard): // Copy path to the clipboard
 			path := getFullPath(list.SelectedEntry(), list.path)
 
 			clipboard.WriteAll(path)
 
 			return *list, message.SendMessage("Copied!")
-		case "w", "up", "k": // Select entry above
+		case key.Matches(msg, keymap.Default.MoveCursorUp): // Select entry above
 			list.selected_index -= 1
 			list.restrictIndex()
 			return *list, message.UpdateEntry(list.SelectedEntry())
-		case "s", "down", "j": // Select entry below
+		case key.Matches(msg, keymap.Default.MoveCursorDown): // Select entry below
 			list.selected_index += 1
 			list.restrictIndex()
 
 			return *list, message.UpdateEntry(list.SelectedEntry())
-		case "a", "left", "h": // Get entries from parent directory
+		case key.Matches(msg, keymap.Default.GoToParentDirectory): // Get entries from parent directory
 			return *list, func() tea.Msg {
 				return message.UpdateEntriesMsg{Parent: true}
 			}
-		case "d", "right", "l": // If the selected entry is a directory. Get entries under that directory
+		case key.Matches(msg, keymap.Default.GoToSelectedDirectory): // If the selected entry is a directory. Get entries under that directory
 			return *list, func() tea.Msg {
 				return message.UpdateEntriesMsg{}
 			}
-		case "enter": // Open file with default application
+		case key.Matches(msg, keymap.Default.OpenFile): // Open file with default application
 			path := getFullPath(list.SelectedEntry(), list.path)
 
 			// If the file can be readable open the default editor for editing
