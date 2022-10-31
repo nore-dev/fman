@@ -5,8 +5,10 @@ import (
 )
 
 type iconSet struct {
-	LeftArrowIcon       rune
-	RightArrowIcon      rune
+	LeftArrowIcon  rune
+	RightArrowIcon rune
+	UpArrowIcon    rune
+
 	BreadcrumbArrowIcon rune
 
 	GopherIcon rune
@@ -25,6 +27,7 @@ type iconSets map[string]iconSet
 var nerdFont = iconSet{
 	LeftArrowIcon:       '\uf060',
 	RightArrowIcon:      '\uf061',
+	UpArrowIcon:         '\uf062',
 	BreadcrumbArrowIcon: '\uf0a4',
 	GopherIcon:          '\ue627',
 	FileIcon:            '\uf15c',
@@ -38,6 +41,7 @@ var nerdFont = iconSet{
 var emoji = iconSet{
 	LeftArrowIcon:       '◀',
 	RightArrowIcon:      '▶',
+	UpArrowIcon:         '🔼',
 	BreadcrumbArrowIcon: '👉',
 	GopherIcon:          '🐻',
 	FileIcon:            '📄',
@@ -51,6 +55,7 @@ var emoji = iconSet{
 var noIcons = iconSet{
 	LeftArrowIcon:       '<',
 	RightArrowIcon:      '>',
+	UpArrowIcon:         '^',
 	BreadcrumbArrowIcon: '>',
 }
 
