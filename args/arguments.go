@@ -5,8 +5,8 @@ import "github.com/alexflint/go-arg"
 // Define CommandLine arguments
 var CommandLine struct {
 	Path  string `arg:"positional" default:"."`
-	Theme string `default:"default"`
-	Icons string `default:"nerdfont"`
+	Theme string `default:""`
+	Icons string `default:""`
 }
 
 // Expose initialization function

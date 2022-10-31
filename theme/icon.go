@@ -1,7 +1,7 @@
 package theme
 
 import (
-	"github.com/nore-dev/fman/args"
+	"github.com/nore-dev/fman/cfg"
 )
 
 type iconSet struct {
@@ -66,5 +66,5 @@ var iconProviders = iconSets{
 }
 
 func GetActiveIconTheme() iconSet {
-	return iconProviders[args.CommandLine.Icons]
+	return iconProviders[cfg.Config.Icons]
 }
