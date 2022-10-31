@@ -5,12 +5,15 @@ import (
 	"path/filepath"
 
 	"github.com/76creates/stickers"
+	"github.com/charmbracelet/bubbles/help"
+	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	zone "github.com/lrstanley/bubblezone"
 	"github.com/muesli/termenv"
 
 	"github.com/nore-dev/fman/args"
+	"github.com/nore-dev/fman/keymap"
 	"github.com/nore-dev/fman/message"
 
 	"github.com/nore-dev/fman/model/dialog"
@@ -33,6 +36,9 @@ type App struct {
 	height int
 
 	flexBox *stickers.FlexBox
+
+	help     help.Model
+	showHelp bool
 }
 
 func (app *App) Init() tea.Cmd {
@@ -53,6 +59,10 @@ func (app *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tea.KeyMsg:
 
+		if key.Matches(msg, keymap.Default.ToggleHelp) {
+			app.showHelp = !app.showHelp
+		}
+
 		switch msg.String() {
 		case "ctrl+c", "q":
 			return app, tea.Quit
@@ -71,6 +81,8 @@ func (app *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		app.entryInfo.SetWidth(app.flexBox.Row(0).Cell(1).GetWidth())
 		app.entryInfo.SetHeight(app.flexBox.GetHeight())
+
+		app.help.Width = msg.Width
 
 	case message.UpdateDialogMsg:
 		app.dialog.SetDialog(&msg.Dialog)
@@ -112,15 +124,11 @@ func (app *App) View() string {
 	view := zone.Mark("list", app.flexBox.Render())
 
 	if app.list.IsEmpty() {
-		view = lipgloss.Place(
-			app.flexBox.GetWidth(),
-			app.flexBox.GetHeight(),
-			lipgloss.Center,
-			lipgloss.Center,
-			theme.EmptyFolderStyle.Render("This folder is empty"),
-			lipgloss.WithWhitespaceChars("."),
-			lipgloss.WithWhitespaceForeground(app.list.Theme().EvenItemBgColor),
-		)
+		view = app.renderFull(theme.EmptyFolderStyle.Render("This folder is empty"))
+	}
+
+	if app.showHelp {
+		view = app.renderFull(theme.EmptyFolderStyle.Render(app.help.View(keymap.Default)))
 	}
 
 	return zone.Scan(lipgloss.JoinVertical(
@@ -131,6 +139,17 @@ func (app *App) View() string {
 	))
 }
 
+func (app App) renderFull(str string) string {
+	return lipgloss.Place(
+		app.flexBox.GetWidth(),
+		app.flexBox.GetHeight(),
+		lipgloss.Center,
+		lipgloss.Center,
+		str,
+		lipgloss.WithWhitespaceChars("."),
+		lipgloss.WithWhitespaceForeground(app.list.Theme().EvenItemBgColor),
+	)
+}
 func main() {
 	// Initialize Bubblezone
 	zone.NewGlobal()
@@ -149,6 +168,9 @@ func main() {
 		dialog:    dialog.New(),
 		flexBox:   stickers.NewFlexBox(0, 0),
 	}
+
+	app.help.FullSeparator = "   "
+	app.help.ShowAll = true
 
 	rows := []*stickers.FlexBoxRow{
 		app.flexBox.NewRow().AddCells(
