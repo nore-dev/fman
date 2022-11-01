@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os"
 	"path/filepath"
 
@@ -11,6 +12,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	zone "github.com/lrstanley/bubblezone"
 	"github.com/muesli/termenv"
+	"github.com/nore-dev/fman/cfg"
 
 	"github.com/nore-dev/fman/args"
 	"github.com/nore-dev/fman/keymap"
@@ -156,7 +158,11 @@ func main() {
 	defer zone.Close()
 
 	args.Initialize()
-	selectedTheme := theme.GetActiveTheme(args.CommandLine.Theme)
+	err := cfg.LoadConfig() // TODO: show error somewhere
+	if err != nil {
+		log.Println(err)
+	}
+	selectedTheme := theme.GetActiveTheme(cfg.Config.Theme)
 
 	theme.SetTheme(selectedTheme)
 
