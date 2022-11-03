@@ -59,8 +59,8 @@ $ npm i @nore-dev/fman
 |      `g`      |     Move to the beginning of the list     |
 |      `m`      |        Toggle showing hidden Files        |
 |    `~, .`     |        Move to the home directory         |
-|  `show+down`  |            Scroll preview down            |
-|   `show+up`   |             Scroll preview up             |
+|  `shift+down`  |            Scroll preview down            |
+|   `shift+up`   |             Scroll preview up             |
 |      `?`      |                Toggle help                |
 
 ## :computer: CLI options
