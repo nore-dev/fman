@@ -8,6 +8,8 @@
 *.so
 *.dylib
 
+.DS_Store
+
 # Test binary, built with `go test -c`
 *.test
 
@@ -19,3 +21,6 @@
 
 # Go workspace file
 go.work
+
+# Artifacts created by GoReleaser during release
+dist/
