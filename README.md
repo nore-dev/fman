@@ -44,6 +44,12 @@ $ go install github.com/nore-dev/fman@latest
 $ npm i @nore-dev/fman
 ```
 
+### Brew
+
+```sh
+brew install fman/tap/fman
+```
+
 ## :keyboard: Keybindings
 
 |      Key      |                Description                |
